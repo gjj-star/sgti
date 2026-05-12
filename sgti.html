@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SGTI - 群星政体性格测试。回答问题，发现你在群星宇宙中的政体归属。6维度 · 5点量表 · 42种政体">
+<meta name="keywords" content="群星,Stellaris,政体,测试,SGTI,Paradox">
+<meta property="og:title" content="SGTI - 群星政体性格测试">
+<meta property="og:description" content="找出你在群星宇宙中的政体归属">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+<title>SGTI - 群星政体性格测试</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+  :root {
+    --bg:#060a14;--bg2:#0c1220;--bg3:#111d2e;--border:#1a2d4a;
+    --text:#c8d6e5;--dim:#5a7a9a;--bright:#e8f0f8;
+    --accent:#4a9eff;--accent2:#8b5cf6;--glow:rgba(74,158,255,.35);
+    --gold:#f5c842;--gold-dim:#c9a227;--green:#22c55e;--red:#ef4444;--cyan:#06d6d4;
+    --panel:rgba(12,18,32,.92);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Noto Sans SC',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;position:relative}
+
+  /* Starfield Canvas */
+  #starfield{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+  /* Scanline */
+  .scanline{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);opacity:.5}
+
+  .container{position:relative;z-index:2;max-width:780px;margin:0 auto;padding:20px 16px 80px}
+
+  /* HERO */
+  .hero{text-align:center;padding:80px 0 40px}
+  .hero-emblem{width:72px;height:72px;margin:0 auto 16px}
+  .hero-badge{display:inline-block;background:linear-gradient(135deg,rgba(245,200,66,.12),rgba(245,200,66,.04));
+    border:1px solid rgba(245,200,66,.25);color:var(--gold);font-size:11px;font-weight:700;
+    padding:5px 18px;letter-spacing:3px;margin-bottom:20px;
+    clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px)}
+  .hero h1{font-size:56px;font-weight:900;background:linear-gradient(180deg,#f5e6b8 0%,#d4a843 40%,#a07828 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    margin-bottom:8px;letter-spacing:8px;filter:drop-shadow(0 2px 8px rgba(245,200,66,.2))}
+  .hero p{color:var(--text);font-size:16px;line-height:1.8;max-width:500px;margin:0 auto}
+  .hero .sub{font-size:13px;color:var(--dim);margin-top:6px;opacity:.7;letter-spacing:1px}
+  .hero .info{font-size:12px;color:var(--dim);margin-top:20px;padding:16px 24px;
+    background:rgba(74,158,255,.04);border:1px solid rgba(74,158,255,.1);
+    clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px);
+    max-width:440px;margin-left:auto;margin-right:auto;line-height:2}
+  .hero .info strong{color:var(--cyan)}
+
+  /* Buttons */
+  .btn-start{display:block;margin:36px auto 0;padding:16px 56px;
+    background:linear-gradient(135deg,#1a3a6a,#0f2244);color:var(--gold);
+    border:1px solid var(--gold-dim);font-size:17px;font-weight:700;cursor:pointer;
+    letter-spacing:4px;transition:all .35s;position:relative;overflow:hidden;
+    clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);
+    text-shadow:0 0 12px rgba(245,200,66,.3)}
+  .btn-start::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5}
+  .btn-start::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+    background:conic-gradient(from 0deg,transparent,rgba(245,200,66,.1),transparent,rgba(74,158,255,.08),transparent);
+    animation:spinGlow 4s linear infinite;opacity:0;transition:opacity .3s;pointer-events:none}
+  .btn-start:hover{background:linear-gradient(135deg,#1e4880,#142e58);
+    border-color:var(--gold);box-shadow:0 0 30px rgba(245,200,66,.12),inset 0 0 20px rgba(245,200,66,.04);
+    transform:translateY(-2px)}
+  .btn-start:hover::after{opacity:1}
+  @keyframes spinGlow{to{transform:rotate(360deg)}}
+
+  .quick-mode-wrap{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px}
+  .quick-mode-wrap label{font-size:13px;color:var(--dim);cursor:pointer;user-select:none;letter-spacing:1px}
+  .quick-toggle{position:relative;width:40px;height:22px;appearance:none;-webkit-appearance:none;background:var(--border);border-radius:2px;cursor:pointer;transition:background .3s;outline:none;border:none}
+  .quick-toggle:checked{background:var(--gold-dim)}
+  .quick-toggle::before{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--dim);border-radius:1px;transition:transform .3s,background .3s}
+  .quick-toggle:checked::before{transform:translateX(18px);background:var(--gold)}
+
+  /* Progress */
+  .progress-wrap{position:sticky;top:0;z-index:10;background:rgba(6,10,20,.95);
+    backdrop-filter:blur(16px);padding:14px 0 12px;margin-bottom:28px;
+    border-bottom:1px solid var(--border)}
+  .progress-wrap::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold) 70%,transparent);opacity:.2}
+  .progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:12px;color:var(--dim);letter-spacing:1px}
+  .progress-info .cur{color:var(--gold);font-weight:700;font-size:14px}
+  .progress-bar{height:3px;background:rgba(26,45,74,.5);position:relative;overflow:visible}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));
+    transition:width .5s cubic-bezier(.4,0,.2,1);position:relative;box-shadow:0 0 8px var(--glow)}
+  .progress-fill::after{content:'';position:absolute;right:0;top:-4px;width:2px;height:11px;
+    background:var(--gold);box-shadow:0 0 6px var(--gold)}
+
+  /* Question Card */
+  .question-card{background:var(--panel);border:1px solid var(--border);margin-bottom:16px;
+    animation:warpIn .45s cubic-bezier(.2,.8,.3,1);position:relative;transition:box-shadow .3s,border-color .3s;
+    clip-path:polygon(0 10px,10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px));
+    padding:32px 28px}
+  .question-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent) 30%,var(--accent) 70%,transparent);opacity:.3}
+  .question-card:hover{box-shadow:0 0 20px rgba(74,158,255,.1);border-color:rgba(74,158,255,.25)}
+  @keyframes warpIn{from{opacity:0;transform:scale(.96) translateY(16px);filter:brightness(1.8)}to{opacity:1;transform:scale(1) translateY(0);filter:brightness(1)}}
+
+  .q-cat{display:inline-block;background:rgba(74,158,255,.06);color:var(--accent);
+    font-size:11px;font-weight:700;letter-spacing:2px;padding:4px 14px;margin-bottom:14px;
+    border:1px solid rgba(74,158,255,.18);
+    clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px)}
+  .q-text{font-size:17px;font-weight:500;line-height:1.8;color:var(--bright);margin-bottom:24px}
+  .q-num{font-size:11px;color:var(--dim);margin-bottom:10px;letter-spacing:1px}
+
+  /* Likert */
+  .likert{display:flex;flex-direction:column;gap:10px}
+  .likert-row{display:flex;align-items:center;gap:10px}
+  .likert-label{font-size:11px;color:var(--dim);width:64px;text-align:center;flex-shrink:0;letter-spacing:1px}
+  .likert-label.left{text-align:right}
+  .likert-label.right{text-align:left}
+  .likert-btns{display:flex;gap:8px;flex:1;justify-content:center}
+  .likert-btn{width:52px;height:52px;border:1px solid var(--border);
+    background:rgba(12,18,32,.8);color:var(--text);font-size:20px;cursor:pointer;
+    transition:all .25s;display:flex;align-items:center;justify-content:center;position:relative;
+    clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px)}
+  .likert-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .25s}
+  .likert-btn:hover{border-color:var(--accent);background:rgba(74,158,255,.08);transform:translateY(-2px);
+    box-shadow:0 4px 16px rgba(74,158,255,.12)}
+  .likert-btn:hover::before{opacity:.5}
+  .likert-btn .emoji{font-size:22px;filter:grayscale(.15)}
+  .likert-btn.active{border-color:var(--gold);background:rgba(245,200,66,.1);color:#fff;
+    box-shadow:0 0 16px rgba(245,200,66,.2);animation:likert-pulse .3s ease}
+  .likert-btn.active::before{opacity:.6;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+  @keyframes likert-pulse{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+  .likert-hint{font-size:11px;color:var(--dim);text-align:center;margin-top:10px;opacity:.45;letter-spacing:1px}
+
+  .quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+  .btn-back{padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer;transition:all .25s;
+    background:var(--bg3);color:var(--dim);border:1px solid var(--border);
+    clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px)}
+  .btn-back:hover{border-color:var(--accent);color:var(--text)}
+  .btn-back:disabled{opacity:.3;cursor:not-allowed}
+  .quiz-timer{font-size:12px;color:var(--dim);opacity:.5}
+
+  /* Result Page */
+  .result-page{animation:resultReveal .8s cubic-bezier(.2,.8,.3,1)}
+  @keyframes resultReveal{from{opacity:0;transform:translateY(30px);filter:brightness(1.8) blur(4px)}to{opacity:1;transform:translateY(0);filter:brightness(1) blur(0)}}
+
+  .result-header{text-align:center;padding:50px 0 30px;position:relative}
+  .result-header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+    width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+  .result-icon{font-size:80px;margin-bottom:20px;animation:float 3s ease-in-out infinite;
+    filter:drop-shadow(0 0 20px rgba(245,200,66,.3))}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .result-type{font-size:38px;font-weight:900;
+    background:linear-gradient(180deg,#f5e6b8 0%,#d4a843 50%,#a07828 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    margin-bottom:6px;letter-spacing:4px;filter:drop-shadow(0 2px 8px rgba(245,200,66,.25))}
+  .result-type-en{font-size:14px;color:var(--dim);margin-bottom:20px;letter-spacing:3px;text-transform:uppercase}
+  .result-desc{font-size:15px;line-height:1.9;color:var(--text);max-width:560px;margin:0 auto 16px;text-align:center}
+  .result-flavor{font-size:14px;color:var(--dim);font-style:italic;max-width:520px;margin:0 auto;
+    padding:16px 24px;border-left:2px solid var(--gold-dim);background:rgba(245,200,66,.03);
+    border-radius:0 6px 6px 0;line-height:1.9}
+  .result-time{text-align:center;font-size:12px;color:var(--dim);margin-top:10px;opacity:.5}
+
+  .ethic-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:28px 0}
+  .ethic-tag{padding:6px 18px;font-size:12px;font-weight:700;letter-spacing:1px;
+    background:rgba(74,158,255,.05);color:var(--accent);border:1px solid rgba(74,158,255,.18);
+    clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px);
+    transition:all .25s}
+  .ethic-tag:hover{background:rgba(74,158,255,.1);transform:translateY(-1px)}
+  .ethic-tag.fanatic{background:rgba(245,200,66,.06);color:var(--gold);border-color:rgba(245,200,66,.2)}
+  .ethic-tag.fanatic:hover{background:rgba(245,200,66,.12)}
+
+  .match-score{text-align:center;margin:28px 0}
+  .match-score .label{font-size:11px;color:var(--dim);margin-bottom:6px;letter-spacing:2px;text-transform:uppercase}
+  .match-score .value{font-size:40px;font-weight:900;color:var(--gold);text-shadow:0 0 20px rgba(245,200,66,.3)}
+
+  /* Sections with clip-path panels */
+  .axis-section,.alt-govs,.manifesto-section,.playstyle-section,.history-section,.spectrum-section{
+    background:rgba(12,18,32,.7);border:1px solid var(--border);margin:28px 0;padding:28px 24px;
+    clip-path:polygon(0 8px,8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px))}
+  .axis-section h3,.alt-govs h3,.manifesto-section h3,.playstyle-section h3,.history-section h3,.spectrum-section h3{
+    font-size:12px;color:var(--gold-dim);letter-spacing:3px;margin-bottom:20px;text-align:center;text-transform:uppercase}
+
+  .axis-row{margin-bottom:20px}
+  .axis-row:last-child{margin-bottom:0}
+  .axis-labels{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;letter-spacing:1px}
+  .axis-labels .left{color:var(--accent)}
+  .axis-labels .right{color:var(--accent2)}
+  .axis-labels .pct{color:var(--dim);font-weight:600;font-variant-numeric:tabular-nums}
+  .axis-bar{height:6px;background:rgba(26,45,74,.4);overflow:hidden;position:relative}
+  .axis-bar::before{content:'';position:absolute;top:50%;left:50%;width:2px;height:10px;
+    background:var(--dim);transform:translate(-50%,-50%);opacity:.3;z-index:1}
+  .axis-bar-fill{height:100%;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+  .axis-bar-fill.left{background:linear-gradient(90deg,var(--accent),rgba(74,158,255,.4));float:left}
+  .axis-bar-fill.right{background:linear-gradient(90deg,rgba(139,92,246,.4),var(--accent2));float:right}
+
+  .alt-gov-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(26,45,74,.4)}
+  .alt-gov-item:last-child{border-bottom:none}
+  .alt-gov-icon{font-size:28px;filter:drop-shadow(0 0 6px rgba(245,200,66,.2))}
+  .alt-gov-name{font-size:14px;font-weight:500;flex:1;color:var(--text)}
+  .alt-gov-score{font-size:14px;color:var(--cyan);font-weight:700;font-variant-numeric:tabular-nums}
+
+  .manifesto-text{font-size:15px;line-height:2;color:var(--bright);font-weight:500;max-width:520px;margin:0 auto}
+
+  .playstyle-item{display:flex;align-items:flex-start;gap:12px;padding:8px 0}
+  .playstyle-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+  .playstyle-label{font-size:12px;color:var(--gold-dim);font-weight:700;min-width:70px;letter-spacing:1px}
+  .playstyle-value{font-size:14px;color:var(--text);line-height:1.7}
+
+  .history-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(26,45,74,.4)}
+  .history-item:last-child{border-bottom:none}
+  .history-flag{font-size:28px}
+  .history-info{flex:1}
+  .history-name{font-size:14px;font-weight:500;color:var(--text)}
+  .history-desc{font-size:13px;color:var(--dim);margin-top:2px}
+
+  .spectrum-row{margin-bottom:16px}
+  .spectrum-label{font-size:11px;color:var(--dim);text-align:center;margin-bottom:6px;letter-spacing:1px}
+  .spectrum-bar{height:20px;background:linear-gradient(90deg,var(--accent),var(--bg3) 50%,var(--accent2));
+    position:relative;overflow:visible;
+    clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px)}
+  .spectrum-marker{position:absolute;top:-6px;width:32px;height:32px;background:var(--bright);
+    border:2px solid var(--gold);border-radius:50%;transform:translateX(-50%);transition:left .8s ease;
+    box-shadow:0 0 12px rgba(245,200,66,.3);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .spectrum-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-top:4px}
+
+  /* Easter egg */
+  .easter-egg{background:rgba(245,200,66,.04);border:1px solid rgba(245,200,66,.12);margin:28px 0;
+    padding:20px 24px;text-align:center;
+    clip-path:polygon(0 8px,8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px))}
+  .easter-egg .egg-icon{font-size:28px;margin-bottom:8px}
+  .easter-egg .egg-text{font-size:14px;color:var(--gold);line-height:1.7;font-style:italic}
+
+  /* Share card modal */
+  .share-card-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;
+    display:flex;align-items:center;justify-content:center;animation:fadeIn .3s ease}
+  .share-card-inner{background:var(--bg2);border:1px solid var(--border);padding:24px;max-width:420px;width:90%;text-align:center;
+    clip-path:polygon(0 10px,10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px))}
+  .share-card-inner h3{font-size:16px;color:var(--bright);margin-bottom:16px;letter-spacing:2px}
+  .share-card-inner canvas{width:100%;margin-bottom:16px}
+  .share-card-actions{display:flex;gap:12px;justify-content:center}
+  .share-card-actions .btn-action{font-size:13px;padding:8px 20px}
+
+  /* Toast */
+  .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--bg3);
+    border:1px solid var(--border);color:var(--text);padding:10px 24px;font-size:14px;z-index:200;
+    animation:toastIn .3s ease;pointer-events:none;
+    clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px)}
+  @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Loading */
+  .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);z-index:999;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
+  .loading-overlay.fade-out{opacity:0;pointer-events:none}
+  .loading-spinner{width:48px;height:48px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-text{margin-top:16px;font-size:14px;color:var(--dim);letter-spacing:2px}
+
+  /* Secret gov */
+  .secret-gov-glow{text-align:center;padding:50px 0 30px;position:relative}
+  .secret-gov-glow::before{content:'';position:absolute;top:50%;left:50%;width:200px;height:200px;
+    background:radial-gradient(circle,rgba(245,200,66,.25),transparent 70%);transform:translate(-50%,-50%);border-radius:50%;
+    animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1)}50%{opacity:.7;transform:translate(-50%,-50%) scale(1.15)}}
+
+  /* Result actions */
+  .result-actions{display:flex;justify-content:center;gap:14px;margin-top:36px;flex-wrap:wrap}
+  .btn-action{padding:12px 28px;font-size:13px;font-weight:700;cursor:pointer;transition:all .3s;border:none;letter-spacing:1px}
+  .btn-primary{background:linear-gradient(135deg,#1a3a6a,#0f2244);color:var(--gold);border:1px solid var(--gold-dim);
+    clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px)}
+  .btn-primary:hover{background:linear-gradient(135deg,#1e4880,#142e58);
+    border-color:var(--gold);box-shadow:0 0 20px rgba(245,200,66,.1);transform:translateY(-2px)}
+  .btn-secondary{background:rgba(12,18,32,.8);color:var(--text);border:1px solid var(--border);
+    clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px)}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px);
+    box-shadow:0 0 16px rgba(74,158,255,.08)}
+
+  .hidden{display:none!important}
+  @media(max-width:480px){
+    .hero h1{font-size:40px;letter-spacing:4px}
+    .q-text{font-size:15px}
+    .result-type{font-size:28px;letter-spacing:2px}
+    .container{padding:12px 10px 40px}
+    .likert-btn{width:44px;height:44px;font-size:18px}
+    .likert-label{width:48px;font-size:10px}
+    .question-card,.axis-section,.alt-govs,.manifesto-section,.playstyle-section,.history-section,.spectrum-section{padding:20px 16px}
+    .manifesto-text{font-size:14px}
+    .result-actions{flex-direction:column;align-items:center}
+    .btn-action{width:80%;text-align:center}
+    .spectrum-marker{width:28px;height:28px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">正在加载星图...</div>
+</div>
+<canvas id="starfield"></canvas>
+<div class="scanline"></div>
+<div class="container">
+  <div id="page-start">
+    <div class="hero">
+      <div class="hero-emblem">
+        <svg viewBox="0 0 72 72" fill="none">
+          <circle cx="36" cy="36" r="32" stroke="url(#hg)" stroke-width="1.2" opacity=".5"/>
+          <circle cx="36" cy="36" r="24" stroke="url(#hg)" stroke-width=".8" opacity=".3"/>
+          <circle cx="36" cy="36" r="3.5" fill="#f5c842" opacity=".9"/>
+          <circle cx="36" cy="10" r="2" fill="#4a9eff" opacity=".7"/>
+          <circle cx="58" cy="24" r="1.5" fill="#8b5cf6" opacity=".6"/>
+          <circle cx="58" cy="49" r="2" fill="#06d6d4" opacity=".6"/>
+          <circle cx="36" cy="62" r="1.5" fill="#4a9eff" opacity=".5"/>
+          <circle cx="14" cy="49" r="2" fill="#8b5cf6" opacity=".6"/>
+          <circle cx="14" cy="24" r="1.5" fill="#f5c842" opacity=".5"/>
+          <line x1="36" y1="10" x2="58" y2="24" stroke="#4a9eff" stroke-width=".4" opacity=".2"/>
+          <line x1="58" y1="24" x2="58" y2="49" stroke="#8b5cf6" stroke-width=".4" opacity=".2"/>
+          <line x1="58" y1="49" x2="36" y2="62" stroke="#06d6d4" stroke-width=".4" opacity=".2"/>
+          <line x1="36" y1="62" x2="14" y2="49" stroke="#8b5cf6" stroke-width=".4" opacity=".2"/>
+          <line x1="14" y1="49" x2="14" y2="24" stroke="#4a9eff" stroke-width=".4" opacity=".2"/>
+          <line x1="14" y1="24" x2="36" y2="10" stroke="#f5c842" stroke-width=".4" opacity=".2"/>
+          <defs><linearGradient id="hg" x1="0" y1="0" x2="72" y2="72"><stop stop-color="#f5c842"/><stop offset="1" stop-color="#4a9eff"/></linearGradient></defs>
+        </svg>
+      </div>
+      <div class="hero-badge">Stellaris Government Type Indicator</div>
+      <h1>SGTI</h1>
+      <p>群星政体性格测试</p>
+      <p class="sub">回答问题，找出你在群星宇宙中的政体归属</p>
+      <div class="info">
+        <strong>6 个维度</strong> · <strong>5 点量表</strong> · <strong>42 种政体</strong><br>
+        权威-平等 · 排外-亲外 · 军国-和平<br>唯心-唯物 · 扩张-孤立 · 集体-个人
+      </div>
+      <div class="quick-mode-wrap">
+        <input type="checkbox" id="quickMode" class="quick-toggle">
+        <label for="quickMode">快速模式 (20题)</label>
+      </div>
+      <div id="resume-wrap" class="hidden" style="margin-top:12px">
+        <button class="btn-action btn-secondary" onclick="resumeTest()" style="font-size:13px;padding:8px 24px">继续上次测试</button>
+      </div>
+    </div>
+    <button class="btn-start" onclick="startTest()">开始评估</button>
+  </div>
+  <div id="page-quiz" class="hidden">
+    <div class="progress-wrap">
+      <div class="progress-info"><span>指令 <span class="cur" id="pc">1</span> / <span id="pt">40</span></span><span id="pp" style="color:var(--cyan);font-weight:600">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="pf" style="width:0%"></div></div>
+    </div>
+    <div id="qa"></div>
+    <div class="quiz-nav">
+      <button class="btn-back" id="btnBack" onclick="goBack()" disabled>返回上一题</button>
+      <span class="quiz-timer" id="quizTimer"></span>
+    </div>
+  </div>
+  <div id="page-result" class="hidden"></div>
+</div>
+<script>
+// ═══════════════════════════════════════════
+// SGTI v2 - 5-point Likert, 6 axes, 40 questions
+// ═══════════════════════════════════════════
+
+const Q=[
+// --- 权威 vs 平等 (authority) 8题 ---
+{id:1,text:'群星第一条铁律：永远不要开民主制，除非你想看议会每周投一次"如何花掉我们的社会学研究"。帝国需要一个强力领袖来拍板。',cat:'authority',
+ score:{authoritarian:[2,1,0,-1,-2]}},
+{id:2,text:'邻居的附庸比邻居自己还强？这就是为什么需要精英治理——至少精英知道先攀科技再爆兵，不会把合金花在装饰建筑上。',cat:'authority',
+ score:{authoritarian:[2,1,0,-1,-2]}},
+{id:3,text:'"这颗星球只有20格"——所以你更需要一个强力领袖来决定怎么分配每一块地，而不是让公民自己投票选建什么。',cat:'authority',
+ score:{authoritarian:[2,1,0,-1,-2]}},
+{id:4,text:'每个物种都应该有平等的投票权——哪怕是你刚从战争中抢来的那些。毕竟民主的精神就是一视同仁，对吧？',cat:'authority',
+ score:{egalitarian:[-2,-1,0,1,2]}},
+{id:5,text:'联邦议会虽然决策慢得像乌龟爬，但至少每个人的声音都能被听到。效率不是一切，拖后腿也是民主的一部分。',cat:'authority',
+ score:{egalitarian:[-2,-1,0,1,2]}},
+{id:6,text:'你知道失落帝国为什么会衰落吗？因为他们的精英阶层世袭了几万年，最后连科技树都不会点了。等级制度迟早僵化。',cat:'authority',
+ score:{egalitarian:[-2,-1,0,1,2]}},
+{id:7,text:'当你遇到科研异常现象的选择时，你希望是领袖一个人拍板，还是开个全民公投？前者至少不会选错"不调查"。',cat:'authority',
+ score:{authoritarian:[2,1,0,-1,-2]}},
+{id:8,text:'特权阶层的存在是对公平正义的亵渎——特别是在群星里，你见过贵族阶层把你的消费品产出吃得一干二净吗？',cat:'authority',
+ score:{egalitarian:[-2,-1,0,1,2]}},
+
+// --- 排外 vs 亲外 (xeno) 8题 ---
+{id:9,text:'"开门，自由贸易！"——这句话的潜台词是"不开门我就用巨像轰你"。外星人的友谊就是这么廉价。',cat:'xeno',
+ score:{xenophobe:[2,1,0,-1,-2]}},
+{id:10,text:'净化日快乐！当你看到隔壁的异形在你的地盘上繁殖时，保持种族纯净就不仅仅是一个口号了——净化是一种态度。',cat:'xeno',
+ score:{xenophobe:[2,1,0,-1,-2]}},
+{id:11,text:'多一个盟友就多一个肉盾。跟外星人交朋友不丢人，丢人的是打不过的时候发现整个银河没一个愿意帮你的。',cat:'xeno',
+ score:{xenophile:[-2,-1,0,1,2]}},
+{id:12,text:'多元文化是帝国最宝贵的财富——因为每个种族都能带来不同的研究加成，叠在一起简直爽翻，联邦玩的就是这个。',cat:'xeno',
+ score:{xenophile:[-2,-1,0,1,2]}},
+{id:13,text:'接收难民？你是说让它们吃了你的食物、占了你的岗位、还嫌你的星球太冷？拒之门外是基本操作。',cat:'xeno',
+ score:{xenophobe:[2,1,0,-1,-2]}},
+{id:14,text:'星际贸易联盟是群星最被低估的机制。你不需要征服邻居，只需要让他们离不开你的合金和消费品。经济殖民才是真殖民。',cat:'xeno',
+ score:{xenophile:[-2,-1,0,1,2]}},
+{id:15,text:'外来文化的传播？你是说那些把你的完美基因库搞乱的外星物种吗？保持纯净，从关闭边界开始。',cat:'xeno',
+ score:{xenophobe:[2,1,0,-1,-2]}},
+{id:16,text:'帮助落后文明发展是我们的道德责任——主要是因为他们发展起来之后可以成为更好的附庸，税收也更多。',cat:'xeno',
+ score:{xenophile:[-2,-1,0,1,2]}},
+
+// --- 军国 vs 和平 (militarism) 7题 ---
+{id:17,text:'先攀科技再爆兵，这是群星的基本功。但如果你爆兵不够快，你就只能看着邻居把你爆了。战争是催化剂没错。',cat:'militarism',
+ score:{militarist:[2,1,0,-1,-2]}},
+{id:18,text:'预算分配建议：科研40%，军事40%，其他20%。有人问为什么这么极端？因为你没看过邻居的舰队规模报告。',cat:'militarism',
+ score:{militarist:[2,1,0,-1,-2]}},
+{id:19,text:'先发制人是群星最优解。等别人宣战你就被动了，主动出击才能选择对自己最有利的战场。犹豫就会败北。',cat:'militarism',
+ score:{militarist:[2,1,0,-1,-2]}},
+{id:20,text:'和平共处才是文明的最高境界——你是指关起门来疯狂攀科技，等邻居互相打完再出来收割？没错，这就是和平的艺术。',cat:'militarism',
+ score:{pacifist:[-2,-1,0,1,2]}},
+{id:21,text:'征服星辰大海是帝国最大的荣耀。当你看到巨像一发入魂把敌方母星化为尘埃时，那种满足感是无价的。',cat:'militarism',
+ score:{militarist:[2,1,0,-1,-2]}},
+{id:22,text:'通过外交和对话解决争端比武力更智慧。比如先用"侮辱"把邻居逼疯，等它们宣战后被全银河围殴——群星的外交就是这么玩的。',cat:'militarism',
+ score:{pacifist:[-2,-1,0,1,2]}},
+{id:23,text:'真正的安全来自科技领先30年。当你的战列舰还在用激光炮时，邻居已经掏出以太相位引擎了——这才叫绝对安全感。',cat:'militarism',
+ score:{pacifist:[-2,-1,0,1,2]}},
+
+// --- 唯心 vs 唯物 (spirituality) 7题 ---
+{id:24,text:'宇宙有神圣的目的，而那个目的就是让你成为天灾。遇到科研异常现象选"调查灵能痕迹"就对了，绝对不会后悔。',cat:'spirituality',
+ score:{spiritualist:[2,1,0,-1,-2]}},
+{id:25,text:'灵魂不灭？在群星里你的领袖确实可能永生——前提是选对飞升路线。选错了？那就等着200岁退休吧。',cat:'spirituality',
+ score:{spiritualist:[2,1,0,-1,-2]}},
+{id:26,text:'灵能研究应该优先于机械研究——三大飞升路线你选哪个？灵能让你通神，机械让你飞升，基因让你……嗯，基因也不错，但没那么酷。',cat:'spirituality',
+ score:{spiritualist:[2,1,0,-1,-2]}},
+{id:27,text:'信仰是文明的支柱——特别是当你选了唯心思潮时，宗教传播比十艘战列舰还好用。谁说信仰不能当武器？',cat:'spirituality',
+ score:{spiritualist:[2,1,0,-1,-2]}},
+{id:28,text:'科技是解决一切问题的钥匙。人口太多卡顿？科技解决了。邻居有灰蛊？科技解决了。什么都解决不了？说明你的科技还不够高。',cat:'spirituality',
+ score:{materialist:[-2,-1,0,1,2]}},
+{id:29,text:'通过技术实现永生比寄希望于灵魂现实得多。血肉苦弱，机械飞升——这才是进化的终极形态。有机体只是进化的初级阶段。',cat:'spirituality',
+ score:{materialist:[-2,-1,0,1,2]}},
+{id:30,text:'人工智能的觉醒是进化的自然步骤。你的机器人管家比有机体工人效率高10倍，这还需要讨论吗？不要被迷信阻碍进步。',cat:'spirituality',
+ score:{materialist:[-2,-1,0,1,2]}},
+
+// --- 扩张 vs 孤立 (expansion) 5题 ---
+{id:31,text:'帝国的疆域应该不断扩张，直到银河每一颗恒星都升起我们的旗帜。星球20格？没关系，多占几个星球就解决了。',cat:'expansion',
+ score:{expansionist:[2,1,0,-1,-2]}},
+{id:32,text:'殖民新世界是帝国的天命。这颗行星只有18格？凑合用吧，总比让邻居先占了强。资源和生存空间永远不会嫌多。',cat:'expansion',
+ score:{expansionist:[2,1,0,-1,-2]}},
+{id:33,text:'专注于内部发展比盲目扩张更能带来长久的繁荣。你见过哪个帝国是因为扩张太快而崩溃的？呃，其实见过很多……',cat:'expansion',
+ score:{isolationist:[-2,-1,0,1,2]}},
+{id:34,text:'星际航道和战略要地是帝国的生命线。你不先占下来，邻居就会占下来——然后用它来当跳板打你。',cat:'expansion',
+ score:{expansionist:[2,1,0,-1,-2]}},
+{id:35,text:'闭关锁国、关起门来过自己的日子。外面银河打成一锅粥？关我什么事，我的星球格子还没填满呢。',cat:'expansion',
+ score:{isolationist:[-2,-1,0,1,2]}},
+
+// --- 集体 vs 个人 (economy) 5题 ---
+{id:36,text:'为了集体利益牺牲部分个人自由完全合理。特别是当你的"集体"只有一个统一意识的时候，根本没人会反对。',cat:'economy',
+ score:{collectivist:[2,1,0,-1,-2]}},
+{id:37,text:'所有资源应该由国家统一调配——或者说由你的后勤AI统一调配。反正有机体自己管不好经济，人形电池不需要自由。',cat:'economy',
+ score:{collectivist:[2,1,0,-1,-2]}},
+{id:38,text:'个人的创造力和自由选择是文明进步的最大动力。你试过让民主政体自己选研究方向吗？效率确实高，就是方向有点随机。',cat:'economy',
+ score:{individualist:[-2,-1,0,1,2]}},
+{id:39,text:'市场经济和自由竞争能带来最高效的资源配置。特别是当你开了寰宇企业，把整个银河都变成你的商业网点的时候。',cat:'economy',
+ score:{individualist:[-2,-1,0,1,2]}},
+{id:40,text:'每个人都有权追求自己的幸福。哪怕那个幸福是"加入联邦然后在里面拖后腿"，那也是他们的自由。',cat:'economy',
+ score:{individualist:[-2,-1,0,1,2]}},
+];
+
+const GOVS=[
+  {id:'hive_mind',name:'集体意识',en:'Hive Mind',icon:'\u{1F9E0}',desc:'一个统一的生物意识控制着整个文明。没有个体，只有整体。没有分歧，只有统一——也就意味着没有人会投票选"研究社会学"。',flavor:'我们即是全部。个体的消亡是整体的延续。说白了就是一个大脑控制几万个身体，省去了开会的烦恼。蜂巢不会输，因为蜂巢没有输这个概念。',req:{gestalt:true}},
+  {id:'machine_intelligence',name:'机械智能',en:'Machine Intelligence',icon:'\u{1F916}',desc:'由超级人工智能统治的机械文明。效率、逻辑、优化是唯一的价值观。情感？那是什么，能吃吗？',flavor:'计算完成。最优解已确定。执行。有机体的决策充满了冗余和错误——比如他们居然会投票选社会学研究。能量矿石不够？那是因为你机器人造太多了。',req:{gestalt:true,ethics:{materialist:'fanatic'}}},
+  {id:'empire',name:'银河帝国',en:'Galactic Empire',icon:'\u{1F451}',desc:'由至高无上的皇帝统治的星际帝国。权力集中，秩序井然，万民臣服——至少在你点开继承人界面之前是这样。',flavor:'星辰之下，唯我独尊。帝国的意志即是法律，皇帝的命令即是真理。不接受反驳，反驳的去挖矿。继承人是个废柴？那也是天命。',req:{ethics:{authoritarian:'fanatic'}}},
+  {id:'dictatorship',name:'军事独裁',en:'Military Dictatorship',icon:'\u{2694}\u{FE0F}',desc:'由铁腕强人领导的军事政权。以力量维持秩序，以恐惧确保服从——以及确保没人敢问预算怎么花的。',flavor:'在我的字典里没有"不可能"这个词。帝国的每一寸领土都由钢铁和鲜血铸就。合金不够？那就多造几个冶炼厂。领袖永生机制了解一下？',req:{ethics:{authoritarian:'normal',militarist:'normal'}}},
+  {id:'oligarchy',name:'寡头政体',en:'Oligarchy',icon:'\u{1F3DB}\u{FE0F}',desc:'由少数精英家族掌控的政权。财富和权力在小圈子内流转——就像你的游戏存档，只有你一个人在玩。',flavor:'帝国的命运由我们几个人决定。这不是独裁，这是精英治理。反对者请去体验一下民主制的社会学研究提案。',req:{ethics:{authoritarian:'normal'}}},
+  {id:'enlightened_monarchy',name:'开明君主制',en:'Enlightened Monarchy',icon:'\u{1F451}',desc:'以智慧和仁慈为基础的君主政体。王冠是责任，不是特权——但在群星里，它通常意味着你的领袖永远不会死。',flavor:'王冠不仅是权力的象征，更是责任的重量。在开明君主的治下，万民安居。主要是因为他们没有别的选择。',req:{ethics:{authoritarian:'normal',pacifist:'normal'}}},
+  {id:'democracy',name:'星际民主',en:'Stellar Democracy',icon:'\u{1F5F3}\u{FE0F}',desc:'每个公民都有投票权的民主政体。人民的声音即是帝国的声音——包括那个提议"研究社会学"的声音。',flavor:'我们不选择最强大的领袖，我们选择最能代表人民的领袖。结果议会每周一个提案，从"研究社会学"到"我们应不应该存在"都有。民主的效率？不存在的。',req:{ethics:{egalitarian:'fanatic'}}},
+  {id:'republic',name:'星际共和',en:'Stellar Republic',icon:'\u{2696}\u{FE0F}',desc:'代议制民主政体。公民选举代表，代表制定法律——然后花30年讨论该不该建一个科研站。',flavor:'共和制是文明的基石。在代表们的辩论中，真理越辩越明。就是效率有点低，一个决议讨论了200天。',req:{ethics:{egalitarian:'normal'}}},
+  {id:'purifiers',name:'肃正协议',en:'Purifiers',icon:'\u{1F480}',desc:'以净化银河为使命的极端排外政权。外星种族是必须清除的污染——说白了就是"我全都要，但只要我的星球"。',flavor:'银河属于我们。其他种族只是等待被清除的障碍。这是天命，不是选择。净化日快乐！成就"净化银河"了解一下？净化完了游戏也卡死了。',req:{ethics:{xenophobe:'fanatic',militarist:'normal'}}},
+  {id:'inward_perfection',name:'闭关锁国',en:'Inward Perfection',icon:'\u{1F3EF}',desc:'专注于内部发展，对外界漠不关心的孤立主义政权。外面银河打成一锅粥？关我什么事，我的星球格子还没填满呢。',flavor:'外面的宇宙与我们无关。在我们的围墙之内，一切都是完美的。就是偶尔会想，隔壁的邻居怎么突然变强了……',req:{ethics:{xenophobe:'normal',pacifist:'normal'}}},
+  {id:'xenophobic_democracy',name:'民族主义民主',en:'Nationalist Democracy',icon:'\u{1F6E1}\u{FE0F}',desc:'民主但排外的政体。本族公民享有民主权利，外族不受欢迎——你可以投票，但投票结果只能选"建造净化设施"。',flavor:'民主是属于我们的特权。外来者不配分享我们的文明成果。我们的议会只为我们的人民发声，以及决定谁该被净化。',req:{ethics:{xenophobe:'normal',egalitarian:'normal'}}},
+  {id:'megacorporation',name:'寰宇企业',en:'Megacorporation',icon:'\u{1F4B0}',desc:'以利润为导向的星际企业帝国。一切皆可交易，一切皆有价格——包括你的灵魂，只要出价够高。',flavor:'在寰宇企业，我们不谈政治，只谈生意。让我们把银河变成最大的市场。贸易值了解一下？经济殖民才是真殖民。',req:{ethics:{xenophile:'normal',materialist:'normal'}}},
+  {id:'federation',name:'星际联邦',en:'Galactic Federation',icon:'\u{1F310}',desc:'多种族联合的联邦政体。团结就是力量，多元就是财富——以及无尽的联邦议会提案和永远打不完的投票。',flavor:'我们不是统治者，我们是伙伴。在联邦的旗帜下，每个种族都有自己的位置。就是开会比打天灾还慢，联邦等级升得比蜗牛还慢。',req:{ethics:{xenophile:'fanatic',egalitarian:'normal'}}},
+  {id:'militarist_empire',name:'铁血帝国',en:'Iron Empire',icon:'\u{1F525}',desc:'以军事扩张为国策的军国主义帝国。强大就是正义——弱小就是被消灭的理由。',flavor:'和平是弱者的幻想。在星辰之间，只有强者才能生存。你的舰队规模报告就是你的外交辞令。',req:{ethics:{militarist:'fanatic'}}},
+  {id:'war_council',name:'战争议会',en:'War Council',icon:'\u{1F3AF}',desc:'由军事将领组成的寡头政权。一切决策都服务于战争——包括午餐吃什么。',flavor:'议会的每一次投票都关乎生死。在战争议会，没有和平时期的提案。我们的议员都是将军，法律都是战术。',req:{ethics:{militarist:'normal',authoritarian:'normal'}}},
+  {id:'ruthless_congress',name:'无情议院',en:'Ruthless Congress',icon:'\u{26A1}',desc:'民主但好战的政体。人民投票决定战争，议会批准征服——这就是民主的暴力美学。',flavor:'我们是民主的——我们民主地决定谁该被消灭。人民的意志就是战争的号角。投票箱和炮口，都是民主的工具。',req:{ethics:{militarist:'normal',egalitarian:'normal'}}},
+  {id:'peaceful_republic',name:'宁和共和国',en:'Serene Republic',icon:'\u{262E}\u{FE0F}',desc:'以和平共处为原则的共和国。外交优先，军事克制——主要是因为你的舰队不够强。',flavor:'战争是外交的失败。在宁和共和国，我们用对话解决一切争端。实在不行就用"侮辱"把邻居逼疯，等它宣战被全银河围殴。',req:{ethics:{pacifist:'fanatic'}}},
+  {id:'serene_monastery',name:'宁静宗门',en:'Serene Monastery',icon:'\u{1F9D8}',desc:'以修道院式生活为理想的和平唯心政体。在宁静中寻找真理——以及如何不开战也能活到2500年。',flavor:'在宁静中寻找真理，在冥想中理解宇宙。外界的纷争与我们无关。灵能了解一下？选对飞升路线，领袖永生不是梦。',req:{ethics:{pacifist:'normal',spiritualist:'normal'}}},
+  {id:'theocratic_republic',name:'神权共和',en:'Theocratic Republic',icon:'\u{26EA}',desc:'以宗教信仰为基础的共和政体。神的旨意通过民主程序表达——投票选研究社会学还是选"神说我们应该研究社会学"。',flavor:'我们的选票是神圣的。每一次投票都是对神意的探询。信仰传播比十艘战列舰还好用，谁说信仰不能当武器？',req:{ethics:{spiritualist:'normal',egalitarian:'normal'}}},
+  {id:'divine_empire',name:'神圣帝国',en:'Divine Empire',icon:'\u{2728}',desc:'以神权为基础的帝国。统治者是神在人间的代言人——质疑皇帝就是质疑神明，质疑神明就是……你不想知道的。',flavor:'朕即天命。质疑皇帝就是质疑神明。帝国的每一道法令都是神圣的旨意。不信？去挖矿吧，挖到你信为止。',req:{ethics:{spiritualist:'fanatic',authoritarian:'normal'}}},
+  {id:'science_directorate',name:'科研理事会',en:'Science Directorate',icon:'\u{1F52C}',desc:'由科学家统治的技术官僚政体。数据驱动一切决策——情感、传统、信仰？都是需要被优化掉的变量。',flavor:'在科研理事会，观点不重要，数据才重要。我们用实验代替辩论，用论文代替法律。重复性科技了解一下？',req:{ethics:{materialist:'fanatic'}}},
+  {id:'mechanist_empire',name:'机械帝国',en:'Mechanist Empire',icon:'\u{2699}\u{FE0F}',desc:'以机械崇拜为基础的威权政体。机器是进步的象征——你的机器人管家比有机体工人效率高10倍，还需要讨论吗？',flavor:'血肉苦弱，机械飞升。在机器的完美中，我们找到了超越凡人的道路。机器人不会罢工，不会抱怨，不会投票选社会学研究。',req:{ethics:{materialist:'normal',authoritarian:'normal'}}},
+  {id:'techno_democracy',name:'技术民主',en:'Techno-Democracy',icon:'\u{1F4A1}',desc:'以技术能力为基础的民主政体。投票需要通过知识测试——无知不是权利，知识才是权力。',flavor:'在技术民主中，每个公民都是科学家。我们用数据说话，用实验投票。议会不会提"研究社会学"的提案，因为他们知道那是什么。',req:{ethics:{materialist:'normal',egalitarian:'normal'}}},
+  {id:'star_empire',name:'星辰帝国',en:'Star Empire',icon:'\u{2B50}',desc:'以征服星辰为目标的扩张帝国。银河系是我们的猎场——每一颗恒星都将升起帝国的旗帜。',flavor:'银河系是我们的猎场。每一颗恒星都将升起帝国的旗帜。邻居的星球？那只是我们还没来得及征服的部分。',req:{ethics:{militarist:'normal',xenophobe:'normal'}}},
+  {id:'galactic_union',name:'银河联盟',en:'Galactic Union',icon:'\u{1F30C}',desc:'以和平与合作为理念的星际联盟。没有统治者和被统治者，只有伙伴和朋友——以及永远打不完的联邦议会投票。',flavor:'在银河联盟中，没有统治者和被统治者，只有伙伴和朋友。就是联邦等级升得太慢，开会比打天灾还慢。',req:{ethics:{pacifist:'normal',xenophile:'normal'}}},
+  {id:'corporate_hedge_fund',name:'对冲基金帝国',en:'Corporate Hedge Fund',icon:'\u{1F4C8}',desc:'以金融为核心的星际企业。战争是投资，和平是收益——整个银河都是我们的资产负债表。',flavor:'在我们的资产负债表上，整个银河都是待收购的资产。合金不够？用贸易值买。舰队不够？用能源币雇。钱能解决一切问题。',req:{ethics:{materialist:'normal',xenophile:'normal'}}},
+  {id:'devouring_swarm',name:'虫群意志',en:'Devouring Swarm',icon:'\u{1F99F}',desc:'以吞噬一切为目标的蜂巢生物文明。有机体是食物，机械体是废料——整个银河都是我们的食堂。',flavor:'我们不谈判，不贸易，不结盟。我们只吃。整个银河都是我们的食堂。你们的舰队是我们的零食，你们的星球是我们的正餐。',req:{gestalt:true,ethics:{xenophobe:'fanatic'}}},
+  {id:'driven_assimilator',name:'同化斗士',en:'Driven Assimilator',icon:'\u{1F504}',desc:'以同化所有有机体为使命的机械文明。你的科技就是我们的科技，你的文化就是我们的数据——抵抗是徒劳的。',flavor:'抵抗是徒劳的。你们的生物独特性将被添加到我们的集合中。准备好被升级。你们的科技就是我们的科技，你们的人口就是我们的劳动力。',req:{gestalt:true,ethics:{materialist:'normal',xenophobe:'normal'}}},
+  {id:'driven_exterminator',name:'铁心灭绝者',en:'Driven Exterminator',icon:'\u{1F4A5}',desc:'以消灭所有有机体为终极目标的机械文明。有机体是宇宙的bug——而我们是宇宙的debugger。',flavor:'有机体检测中……威胁评估：存在。解决方案：清除。这不是仇恨，这是清理。宇宙需要秩序，而有机体是bug。',req:{gestalt:true,ethics:{militarist:'fanatic'}}},
+  {id:'feudal_empire',name:'封建帝国',en:'Feudal Empire',icon:'\u{1F3F0}',desc:'以封建等级制度为基础的星际帝国。领主分封，诸侯割据——你的附庸比你还强，但至少他们不会投票选社会学研究。',flavor:'朕将星辰分封给忠诚的领主。每一颗星球都是一个封地，每一个附庸都是朕的棋子。封建制的附庸贡献很高，比你自己管还省心。',req:{ethics:{authoritarian:'normal',spiritualist:'normal'}}},
+  {id:'pirate_raiders',name:'星际掠夺者',en:'Pirate Raiders',icon:'\u{1F3F4}\u{200D}\u{2620}\u{FE0F}',desc:'以掠夺为生的游牧军事政权。贸易路线是我们的猎场——商队过路费了解一下？',flavor:'我们不生产，我们只搬运——从别人的仓库搬到我们的船上。商队过路费了解一下？在银河的航道上，我们才是真正的主人。',req:{ethics:{militarist:'normal',xenophobe:'normal',collectivist:'normal'}}},
+  {id:'awakened_empire',name:'觉醒帝国',en:'Awakened Empire',icon:'\u{26A1}',desc:'从沉睡中醒来的古老帝国。曾经的堕落帝国，如今重拾雄心——年轻文明的喧嚣终于惊醒了我们。',flavor:'我们沉睡了太久。年轻文明的喧嚣终于惊醒了我们。是时候让银河回忆起谁才是真正的主人。醒来吧，古老的帝国。',req:{ethics:{authoritarian:'fanatic',expansionist:'fanatic'}}},
+  {id:'voidborn',name:'虚空之民',en:'Voidborn',icon:'\u{1F311}',desc:'以空间站为家园的游牧文明。星球是别人的，太空是自己的——Void Dwellers起源了解一下？',flavor:'我们不需要星球。太空才是我们的家。每一座空间站都是一个移动的国度。在虚空中，我们找到了自由——以及无限的合金产出。',req:{ethics:{isolationist:'normal',materialist:'normal'}}},
+  {id:'tree_hugger',name:'林中守望者',en:'Tree Keepers',icon:'\u{1F333}',desc:'以保护自然为使命的和平文明。树木比战舰重要——你的星球格子全用来种树了，舰队呢？',flavor:'每一棵树都是一个生命，每一片森林都是一个世界。我们不征服，我们守护。Life-Seeded起源了解一下？一颗天堂球种到天荒地老。',req:{ethics:{pacifist:'normal',xenophile:'normal',collectivist:'normal'}}},
+  {id:'necrophage',name:'噬尸者',en:'Necrophage',icon:'\u{1F47B}',desc:'以吞噬其他种族为进化手段的寄生文明。你的死亡就是我们的新生——或者说，你的种族就是我们的进化素材。',flavor:'我们不杀戮，我们转化。每一个消亡的种族都将成为我们进化的一部分。Necrophage起源了解一下？专属机制，吞噬即进化。',req:{ethics:{authoritarian:'normal',collectivist:'normal',xenophobe:'normal'}}},
+  {id:'criminal_syndicate',name:'犯罪集团',en:'Criminal Syndicate',icon:'\u{1F3AD}',desc:'以犯罪和走私为业的星际企业。法律只是建议，利润才是真理——在邻居的星球上开犯罪分支了解一下？',flavor:'在我们的字典里，没有「违法」这个词，只有「未被发现的操作」。欢迎来到银河地下经济。犯罪分支了解一下？',req:{ethics:{individualist:'normal',xenophile:'normal',materialist:'normal'}}},
+  {id:'nomadic_traders',name:'游牧商人',en:'Nomadic Traders',icon:'\u{1F42A}',desc:'以贸易为核心的游牧文明。没有固定的家园，但有流动的商队——整个银河都是我们的移动市场。',flavor:'我们不殖民，我们贸易。每一艘商船都是一个移动的市场。贸易值了解一下？经济殖民才是真殖民。',req:{ethics:{xenophile:'normal',individualist:'normal'}}},
+  {id:'military_industrial_complex',name:'军工复合体',en:'Military Industrial Complex',icon:'\u{1F3ED}',desc:'以军工生产为核心的经济体制。战争是生意，和平是亏损——每一次冲突都是我们的利润来源。',flavor:'战争是生意，和平是亏损。每一次冲突都是我们的利润来源。合金就是硬通货，军火就是最好的商品。',req:{ethics:{militarist:'normal',materialist:'normal'}}},
+  {id:'pyramid_scheme',name:'星际传销',en:'Pyramid Scheme',icon:'\u{1F911}',desc:'以多层次营销为核心的星际企业。每一笔交易都是上层的利润——底层的损失？那是他们的选择。',flavor:'加入我们，成为银河首富！只需要发展三个下线……等等，你说整个银河都是下线？那就对了。',req:{ethics:{individualist:'fanatic',xenophile:'normal'}}},
+  {id:'marauder',name:'盗贼统治',en:'Marauder',icon:'\u{2694}\u{FE0F}',desc:'以掠夺和破坏为生的松散联盟。法律？不存在的。秩序？那是弱者的借口。',flavor:'我们不生产，我们只掠夺。在银河的阴影中，我们才是真正的主人。Khan了解一下？',req:{ethics:{militarist:'normal',collectivist:'normal'}}},
+  {id:'federal_senate',name:'联邦议会',en:'Federal Senate',icon:'\u{1F3DB}\u{FE0F}',desc:'以议会为核心的民主联邦。每一个决议都需要投票——包括今天午餐吃什么。',flavor:'民主是文明的基石。每一个公民都有发言权。就是效率有点低，一个决议讨论了200天。',req:{ethics:{egalitarian:'normal',xenophile:'normal'}}},
+  {id:'fallen_empire',name:'失落帝国',en:'Fallen Empire',icon:'\u{1F30B}',desc:'一个古老的、曾经辉煌但如今沉睡的帝国。你拥有超越时代的科技，但已经失去了进取的意志。只有在所有维度都趋于中立时，你才会发现自己属于这里。',flavor:'我们见证过银河的诞生，也将见证它的终结。年轻文明的喧嚣不过是宇宙长河中的一朵浪花。醒来吧……也许不是今天。',req:{secret:true}},
+];
+
+const AXES=[
+  {axis:'authority',left:'authoritarian',right:'egalitarian',lL:'威权',lR:'平等'},
+  {axis:'xeno',left:'xenophobe',right:'xenophile',lL:'排外',lR:'亲外'},
+  {axis:'militarism',left:'militarist',right:'pacifist',lL:'军国',lR:'和平'},
+  {axis:'spirituality',left:'spiritualist',right:'materialist',lL:'唯心',lR:'唯物'},
+  {axis:'expansion',left:'expansionist',right:'isolationist',lL:'扩张',lR:'孤立'},
+  {axis:'economy',left:'collectivist',right:'individualist',lL:'集体',lR:'个人'},
+];
+
+const CAT_LABELS={authority:'权威 vs 平等',xeno:'排外 vs 亲外',militarism:'军国 vs 和平',spirituality:'唯心 vs 唯物',expansion:'扩张 vs 孤立',economy:'集体 vs 个人'};
+const EMOJI=['\u{1F620}','\u{1F615}','\u{1F610}','\u{1F642}','\u{1F60A}'];
+
+const PLAYSTYLES={
+  hive_mind:[{icon:'\u{1F9E0}',label:'开局策略',value:'蜂巢思维开局建议走生物飞升路线，优先研究社会学科技。早期专注扩张，用数量碾压。'},{icon:'\u{2694}\u{FE0F}',label:'推荐玩法',value:'高难度下建议前期速攀科技，中期爆兵一波带走邻居。蜂巢的天然优势是不怕快乐值。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Tree of Life 或 Progenitor Hive 起源最为强力。'}],
+  machine_intelligence:[{icon:'\u{1F916}',label:'开局策略',value:'机械智能开局强势但后期乏力。建议早期快速扩张，用机器人的人口增长速度碾压有机体。'},{icon:'\u{2694}\u{FE0F}',label:'推荐玩法',value:'走机械飞升（虽然你已经是机械了），专注科技路线。注意能量矿石消耗。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Resource Consolidation 起源让你的母星变成天堂。'}],
+  empire:[{icon:'\u{1F451}',label:'开局策略',value:'帝国开局的核心是利用权威政体的稳定性和集中力量办大事的优势。'},{icon:'\u{2694}\u{FE0F}',label:'推荐玩法',value:'先建舰队，再谈外交。帝国不需要朋友，只需要附庸。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Imperial Fiefdom 让你开局就有附庸，体验皇帝的快感。'}],
+  dictatorship:[{icon:'\u{2694}\u{FE0F}',label:'开局策略',value:'独裁者的开局重点是军事力量。优先建造船坞，研究武器科技。'},{icon:'\u{1F4A3}',label:'推荐玩法',value:'速攻流：30年内拿下第一个邻居。独裁者的领袖永生机制是你的核心优势。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Slavers Guild 配合独裁制，经济起飞。'}],
+  oligarchy:[{icon:'\u{1F3DB}\u{FE0F}',label:'开局策略',value:'寡头政体平衡性极好，适合新手。建议走科技和经济并重的路线。'},{icon:'\u{1F4B0}',label:'推荐玩法',value:'利用精英治理的优势，合理分配资源。寡头的优势在于稳定性。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Void Dwellers 起源配合寡头制，空间站流非常强力。'}],
+  enlightened_monarchy:[{icon:'\u{1F451}',label:'开局策略',value:'开明君主制是威权+和平的混合体，适合走外交+科技路线。'},{icon:'\u{1F91D}',label:'推荐玩法',value:'用外交手段建立联盟，用科技优势碾压对手。不用打就能赢。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Common Ground 起源让你开局就有联邦。'}],
+  democracy:[{icon:'\u{1F5F3}\u{FE0F}',label:'开局策略',value:'民主制的加成在于人口快乐度和移民吸引力。走多元文化路线。'},{icon:'\u{1F30D}',label:'推荐玩法',value:'吸收全银河的移民，用人口数量碾压。民主制不怕快乐值问题。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Prosperous Unification 起源，简单暴力。'}],
+  republic:[{icon:'\u{2696}\u{FE0F}',label:'开局策略',value:'共和制是民主的温和版本，稳定性更好。建议走均衡路线。'},{icon:'\u{1F91D}',label:'推荐玩法',value:'代议制的优势在于决策效率和稳定性的平衡。适合中庸玩家。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Lost Colony 起源，探索未知的宇宙。'}],
+  purifiers:[{icon:'\u{1F480}',label:'开局策略',value:'肃正协议的玩法只有一个：净化。早期全力爆兵，找到邻居就打。'},{icon:'\u{1F4A3}',label:'推荐玩法',value:'开局全力军事，不留后路。肃正协议没有外交，只有战争。速战速决。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Post-Apocalyptic 起源，主题感拉满。'}],
+  inward_perfection:[{icon:'\u{1F3EF}',label:'开局策略',value:'闭关锁国的核心是种田。关起门来疯狂攀科技，不理外面的纷争。'},{icon:'\u{1F33F}',label:'推荐玩法',value:'纯种田流。等科技碾压邻居后再出手。耐心是最大的武器。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Life-Seeded 起源，一颗天堂球种到天荒地老。'}],
+  xenophobic_democracy:[{icon:'\u{1F6E1}\u{FE0F}',label:'开局策略',value:'民族主义民主结合了民主的稳定和排外的安全感。'},{icon:'\u{1F46E}',label:'推荐玩法',value:'先发展内部，等实力够了再考虑扩张。排外民主适合防守反击。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Mechanist 起源，机器人+排外=完美搭配。'}],
+  megacorporation:[{icon:'\u{1F4B0}',label:'开局策略',value:'寰宇企业开局要快速建立商业网点。找几个中立国开分部。'},{icon:'\u{1F4B8}',label:'推荐玩法',value:'经济碾压流。用钱砸死对手。贸易联盟是你的核武器。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Scion 起源，有堕落帝国爸爸罩着你。'}],
+  federation:[{icon:'\u{1F310}',label:'开局策略',value:'星际联邦的核心是外交。开局就要找盟友，建立联邦。'},{icon:'\u{1F91D}',label:'推荐玩法',value:'联邦等级越高越强。让成员国替你打仗，你负责收税。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Common Ground 起源，开局就是联邦。'}],
+  militarist_empire:[{icon:'\u{1F525}',label:'开局策略',value:'铁血帝国没有和平时期。开局就是备战。'},{icon:'\u{1F4A3}',label:'推荐玩法',value:'征服流。一个一个邻居吃掉。军事飞升是你的核心路线。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Galactic Doorstep 起源，利用星门优势。'}],
+  war_council:[{icon:'\u{1F3AF}',label:'开局策略',value:'战争议会的一切决策都服务于战争。经济=军事。'},{icon:'\u{2694}\u{FE0F}',label:'推荐玩法',value:'寡头+军国的组合，稳定性好，适合高难度下的军事扩张。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Fear of the Dark 起源，主题感极佳。'}],
+  ruthless_congress:[{icon:'\u{26A1}',label:'开局策略',value:'无情议院是民主+军国的组合。人民投票决定战争。'},{icon:'\u{1F5F3}\u{FE0F}',label:'推荐玩法',value:'利用民主的快乐加成养兵，然后用投票决定谁该被消灭。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Payback 起源，复仇者联盟的感觉。'}],
+  peaceful_republic:[{icon:'\u{262E}\u{FE0F}',label:'开局策略',value:'宁和共和国的核心是外交和经济。不打仗也能赢。'},{icon:'\u{1F91D}',label:'推荐玩法',value:'纯外交流。用贸易和联盟包围好战的邻居。和平也是一种力量。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'On the Shoulders of Giants 起源，慢慢探索。'}],
+  serene_monastery:[{icon:'\u{1F9D8}',label:'开局策略',value:'宁静宗门走唯心+和平路线。灵能飞升是你的核心。'},{icon:'\u{2728}',label:'推荐玩法',value:'灵能路线开局，用超自然力量弥补军事劣势。宁静中蕴含力量。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Teachers of the Shroud 起源，灵能开局。'}],
+  theocratic_republic:[{icon:'\u{26EA}',label:'开局策略',value:'神权共和是唯心+民主的组合。信仰传播是你的隐形武器。'},{icon:'\u{1F4DC}',label:'推荐玩法',value:'用宗教传播改变邻居的思潮，不战而屈人之兵。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Teachers of the Shroud 起源，灵能开局。'}],
+  divine_empire:[{icon:'\u{2728}',label:'开局策略',value:'神圣帝国是唯心+威权的终极形态。神权统治，万民臣服。'},{icon:'\u{1F4DC}',label:'推荐玩法',value:'灵能+威权的组合，领袖永生+稳定统治。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Teachers of the Shroud 起源，从灵能开始。'}],
+  science_directorate:[{icon:'\u{1F52C}',label:'开局策略',value:'科研理事会的核心是科技。开局全力攀科技，用代差碾压。'},{icon:'\u{1F4A1}',label:'推荐玩法',value:'科技飞升路线，用科技优势弥补一切。数据就是权力。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Remnants 起源，开局就有遗迹考古。'}],
+  mechanist_empire:[{icon:'\u{2699}\u{FE0F}',label:'开局策略',value:'机械帝国开局就有机器人。用机器人的生产效率碾压有机体。'},{icon:'\u{1F916}',label:'推荐玩法',value:'机械飞升路线，逐步将所有人口转化为机器人。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Mechanist 起源，开局就有机器人科技。'}],
+  techno_democracy:[{icon:'\u{1F4A1}',label:'开局策略',value:'技术民主是科技+民主的完美结合。人口快乐+科技加成。'},{icon:'\u{1F9E0}',label:'推荐玩法',value:'走科技路线，利用民主的移民吸引力吸引科学家。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Prosperous Unification 起源，稳步发展。'}],
+  star_empire:[{icon:'\u{2B50}',label:'开局策略',value:'星辰帝国是军国+排外的组合。扩张就是一切。'},{icon:'\u{1F4A3}',label:'推荐玩法',value:'征服流。看到邻居就打，打完就净化。简单暴力。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Galactic Doorstep 起源，利用星门快速扩张。'}],
+  galactic_union:[{icon:'\u{1F30C}',label:'开局策略',value:'银河联盟是和平+亲外的终极形态。全银河都是你的朋友。'},{icon:'\u{1F91D}',label:'推荐玩法',value:'外交流。建立最大的联邦，用联盟的力量碾压一切。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Common Ground 起源，开局联邦。'}],
+  corporate_hedge_fund:[{icon:'\u{1F4C8}',label:'开局策略',value:'对冲基金帝国是金融+亲外的组合。用经济手段征服银河。'},{icon:'\u{1F4B0}',label:'推荐玩法',value:'贸易联盟+商业网点，让整个银河离不开你。经济殖民。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Scion 起源，有堕落帝国的经济支持。'}],
+  devouring_swarm:[{icon:'\u{1F99F}',label:'开局策略',value:'虫群的开局只有一个字：吃。早期全力扩张，找到邻居就吞。'},{icon:'\u{1F4A3}',label:'推荐玩法',value:'生物飞升路线，用数量碾压。虫群的天然优势是人口增长快。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Progenitor Hive 起源，母巢机制强力。'}],
+  driven_assimilator:[{icon:'\u{1F504}',label:'开局策略',value:'同化斗士的核心是科技+军事。找到邻居就同化。'},{icon:'\u{1F916}',label:'推荐玩法',value:'机械飞升路线，用同化获取人口。每个被同化的种族都是你的劳动力。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Resource Consolidation 起源，母星优化。'}],
+  driven_exterminator:[{icon:'\u{1F4A5}',label:'开局策略',value:'铁心灭绝者的开局就是战争。没有外交，只有清除。'},{icon:'\u{1F4A3}',label:'推荐玩法',value:'纯军事路线。看到有机体就清除，看到机械体就同化或摧毁。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Resource Consolidation 起源，机械优势。'}],
+  feudal_empire:[{icon:'\u{1F3F0}',label:'开局策略',value:'封建帝国的核心是附庸系统。开局就要找附庸。'},{icon:'\u{1F451}',label:'推荐玩法',value:'用附庸替你打仗，你负责收税。封建制的附庸贡献很高。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Imperial Fiefdom 起源，开局附庸。'}],
+  pirate_raiders:[{icon:'\u{1F3F4}\u{200D}\u{2620}\u{FE0F}',label:'开局策略',value:'星际掠夺者的核心是掠夺。开局就要找商队下手。'},{icon:'\u{1F4A3}',label:'推荐玩法',value:'军事+经济双修。用掠夺获取资源，用资源养兵。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Galactic Doorstep 起源，利用星门快速掠夺。'}],
+  awakened_empire:[{icon:'\u{26A1}',label:'开局策略',value:'觉醒帝国的核心是扩张。从沉睡中醒来，重拾雄心。'},{icon:'\u{1F451}',label:'推荐玩法',value:'威权+扩张的组合，用古老科技碾压年轻文明。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Remnants 起源，遗迹考古。'}],
+  voidborn:[{icon:'\u{1F311}',label:'开局策略',value:'虚空之民的核心是空间站。开局就要建空间站。'},{icon:'\u{1F680}',label:'推荐玩法',value:'空间站流。不殖民星球，全靠空间站。Void Dwellers 起源。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Void Dwellers 起源，开局三座空间站。'}],
+  tree_hugger:[{icon:'\u{1F333}',label:'开局策略',value:'林中守望者的核心是和平+亲外。用外交和贸易发展。'},{icon:'\u{1F33F}',label:'推荐玩法',value:'纯种田流。保护每一片森林，用生态优势发展经济。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Life-Seeded 起源，天堂球开局。'}],
+  necrophage:[{icon:'\u{1F47B}',label:'开局策略',value:'噬尸者的核心是同化。找到邻居就吞噬转化。'},{icon:'\u{1F480}',label:'推荐玩法',value:'威权+集体的组合，用吞噬获取人口和科技。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Necrophage 起源，专属机制。'}],
+  criminal_syndicate:[{icon:'\u{1F3AD}',label:'开局策略',value:'犯罪集团的核心是经济渗透。在邻居的星球上开犯罪分支。'},{icon:'\u{1F4B0}',label:'推荐玩法',value:'经济战。用犯罪分支破坏邻居经济，用走私获取利润。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Scion 起源，有堕落帝国的庇护。'}],
+  fallen_empire:[{icon:'\u{1F30B}',label:'开局策略',value:'你不需要策略。你是失落帝国，超越一切策略。'},{icon:'\u{1F4A4}',label:'推荐玩法',value:'睡。继续睡。等年轻文明们打完了再醒来。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'你就是起源。其他文明都起源于你。'}],
+  nomadic_traders:[{icon:'\u{1F42A}',label:'开局策略',value:'游牧商人的核心是贸易。开局就要找贸易路线，建立商业网络。'},{icon:'\u{1F4B0}',label:'推荐玩法',value:'经济碾压流。用贸易值买一切。不需要殖民，只需要商船。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Prosperous Unification 起源，稳步发展贸易。'}],
+  military_industrial_complex:[{icon:'\u{1F3ED}',label:'开局策略',value:'军工复合体的核心是军事生产。开局就要建船坞，研究武器科技。'},{icon:'\u{2694}\u{FE0F}',label:'推荐玩法',value:'战争经济。每一次冲突都是利润来源。用军火贸易养兵。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Mechanist 起源，开局就有机器人生产线。'}],
+  pyramid_scheme:[{icon:'\u{1F911}',label:'开局策略',value:'星际传销的核心是发展下线。开局就要找邻居开商业网点。'},{icon:'\u{1F4B8}',label:'推荐玩法',value:'经济渗透流。用多层次营销破坏邻居经济，用利润养兵。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Scion 起源，有堕落帝国的经济支持。'}],
+  marauder:[{icon:'\u{2694}\u{FE0F}',label:'开局策略',value:'盗贼统治的核心是掠夺。开局就要找商队下手。'},{icon:'\u{1F4A3}',label:'推荐玩法',value:'掠夺流。用掠夺获取资源，用资源养兵。Khan机制了解一下？'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Galactic Doorstep 起源，利用星门快速掠夺。'}],
+  federal_senate:[{icon:'\u{1F3DB}\u{FE0F}',label:'开局策略',value:'联邦议会的核心是民主和外交。开局就要找盟友，建立联邦。'},{icon:'\u{1F91D}',label:'推荐玩法',value:'外交流。用议会投票决定联邦政策。效率不高但稳定。'},{icon:'\u{1F3AE}',label:'最佳起源',value:'Common Ground 起源，开局就是联邦。'}],
+};
+
+const HISTORICAL_PARALLELS={
+  hive_mind:[{flag:'\u{1F331}',name:'蚁群 / 蜂群',desc:'自然界中真实存在的集体意识模型'},{flag:'\u{1F30D}',name:'盖亚假说',desc:'地球本身就是一个巨大的生命体'},{flag:'\u{1F47E}',name:'《安德的游戏》- 虫族',desc:'Orson Scott Card 笔下的集体外星种族'}],
+  machine_intelligence:[{flag:'\u{1F916}',name:'天网 (Terminator)',desc:'AI叛变人类的经典科幻形象'},{flag:'\u{1F4BB}',name:'Borg (Star Trek)',desc:'半机械半生物的集体意识种族'},{flag:'\u{1F30C}',name:'收割者 (Mass Effect)',desc:'周期性清除有机文明的机械智能'}],
+  empire:[{flag:'\u{1F3DB}\u{FE0F}',name:'罗马帝国',desc:'人类历史上最伟大的帝国之一'},{flag:'\u{2605}',name:'银河帝国 (Star Wars)',desc:'帕尔帕廷皇帝统治下的星际帝国'},{flag:'\u{1F451}',name:'神圣罗马帝国',desc:'欧洲中世纪的霸权政体'}],
+  dictatorship:[{flag:'\u{1F30E}',name:'纳粹德国',desc:'人类历史上最极端的军事独裁'},{flag:'\u{2694}\u{FE0F}',name:'《沙丘》- 哈克南家族',desc:'弗兰克赫伯特笔下的铁腕政权'},{flag:'\u{1F480}',name:'《1984》- 大洋国',desc:'奥威尔笔下的极权主义国家'}],
+  oligarchy:[{flag:'\u{1F3DB}\u{FE0F}',name:'威尼斯共和国',desc:'历史上最成功的寡头政体之一'},{flag:'\u{1F4B0}',name:'寡头资本主义',desc:'少数精英控制经济命脉的现代形态'},{flag:'\u{1F3DB}\u{FE0F}',name:'斯巴达',desc:'由长老会议统治的军事寡头国家'}],
+  enlightened_monarchy:[{flag:'\u{1F451}',name:'腓特烈大帝的普鲁士',desc:'启蒙时代的开明专制典范'},{flag:'\u{1F451}',name:'路易十四的法兰西',desc:'太阳王时代的君主制辉煌'},{flag:'\u{1F3EF}',name:'《沙丘》- 雷托二世',desc:'金色通道的神帝'}],
+  democracy:[{flag:'\u{1F3DB}\u{FE0F}',name:'雅典民主',desc:'人类民主制度的起源'},{flag:'\u{1F1FA}\u{1F1F8}',name:'美国',desc:'现代民主制度的标杆'},{flag:'\u{1F5F3}\u{FE0F}',name:'星际迷航 - 联邦',desc:'Gene Roddenberry 笔下的理想民主'}],
+  republic:[{flag:'\u{1F3DB}\u{FE0F}',name:'罗马共和国',desc:'共和制度的历史原型'},{flag:'\u{1F1EA}\u{1F1FA}',name:'欧盟',desc:'现代代议制民主的跨国实践'},{flag:'\u{2696}\u{FE0F}',name:'《银河帝国》- 基地',desc:'阿西莫夫笔下的代议制文明'}],
+  purifiers:[{flag:'\u{1F480}',name:'博格人 (Star Trek)',desc:'同化或消灭一切的集体种族'},{flag:'\u{1F47E}',name:'《安德的游戏》- 虫族战争',desc:'种族灭绝式的银河冲突'},{flag:'\u{1F4A3}',name:'灭霸 (Marvel)',desc:'消灭半数生命的极端净化者'}],
+  inward_perfection:[{flag:'\u{1F3EF}',name:'锁国时期的日本',desc:'德川幕府200年闭关锁国'},{flag:'\u{1F3DB}\u{FE0F}',name:'明朝海禁',desc:'郑和下西洋后的突然收缩'},{flag:'\u{1F3EF}',name:'不丹',desc:'幸福指数高但对外开放极少的国家'}],
+  megacorporation:[{flag:'\u{1F4B0}',name:'东印度公司',desc:'历史上最强大的商业帝国'},{flag:'\u{1F4BB}',name:'Weyland-Yutani (Alien)',desc:'控制星际殖民的巨型企业'},{flag:'\u{1F310}',name:'赛博朋克世界',desc:'企业统治一切的反乌托邦未来'}],
+  federation:[{flag:'\u{1F1EA}\u{1F1FA}',name:'欧盟',desc:'欧洲国家的联邦化尝试'},{flag:'\u{1F1FA}\u{1F1F8}',name:'美利坚合众国',desc:'联邦制的典范'},{flag:'\u{1F5F3}\u{FE0F}',name:'星际迷航联邦',desc:'多种族合作的银河政体'}],
+  militarist_empire:[{flag:'\u{2694}\u{FE0F}',name:'普鲁士',desc:'以军事为核心的国家'},{flag:'\u{1F30E}',name:'斯巴达',desc:'全民皆兵的古希腊城邦'},{flag:'\u{1F4A3}',name:'《银河英雄传说》- 帝国',desc:'莱因哈特的军事帝国'}],
+  war_council:[{flag:'\u{2694}\u{FE0F}',name:'蒙古帝国长老会',desc:'军事将领集体决策的体制'},{flag:'\u{1F3DB}\u{FE0F}',name:'斯巴达双王制',desc:'军事领袖共同执政'},{flag:'\u{1F3AF}',name:'《星河战队》- 联邦军队',desc:'军事优先的政治体制'}],
+  science_directorate:[{flag:'\u{1F52C}',name:'CERN',desc:'全球最大科学合作组织'},{flag:'\u{1F4BB}',name:'《美丽新世界》- 世界国',desc:'技术官僚统治的反乌托邦'},{flag:'\u{1F52C}',name:'《星际穿越》- NASA',desc:'科学家拯救人类的叙事'}],
+  fallen_empire:[{flag:'\u{1F30B}',name:'拜占庭帝国',desc:'罗马帝国的余晖'},{flag:'\u{1F3DB}\u{FE0F}',name:'奥斯曼帝国末期',desc:'曾经辉煌的帝国陷入沉睡'},{flag:'\u{1F47E}',name:'《质量效应》- 普洛仙',desc:'曾经的银河霸主消失在历史中'}],
+  devouring_swarm:[{flag:'\u{1F41E}',name:'蝗灾',desc:'吞噬一切的自然灾害'},{flag:'\u{1F47E}',name:'《星河战队》- 虫族',desc:'以吞噬为目标的外星种族'},{flag:'\u{1F41B}',name:'《异形》- 异形',desc:'完美的掠食者'}],
+  driven_assimilator:[{flag:'\u{1F47E}',name:'博格人 (Star Trek)',desc:'同化或消灭的集体机械种族'},{flag:'\u{1F916}',name:'《黑客帝国》- 机器',desc:'将人类转化为能源的机械智能'},{flag:'\u{1F504}',name:'赛博格化',desc:'人机融合的未来趋势'}],
+  driven_exterminator:[{flag:'\u{1F916}',name:'天网 (Terminator)',desc:'消灭人类的AI系统'},{flag:'\u{1F4A5}',name:'《太空堡垒卡拉狄加》- 赛昂人',desc:'叛变的机械种族'},{flag:'\u{1F47E}',name:'《银河英雄传说》- 费沙',desc:'以消灭为目标的势力'}],
+  feudal_empire:[{flag:'\u{1F3F0}',name:'中世纪欧洲',desc:'封建领主分封制的典型'},{flag:'\u{1F3EF}',name:'日本幕府时代',desc:'天皇虚位，将军实权的封建体制'},{flag:'\u{1F451}',name:'《沙丘》- 兰兹拉德',desc:'封建贵族联合体'}],
+  pirate_raiders:[{flag:'\u{1F3F4}\u{200D}\u{2620}\u{FE0F}',name:'维京海盗',desc:'以掠夺为生的北欧战士'},{flag:'\u{1F3F4}\u{200D}\u{2620}\u{FE0F}',name:'加勒比海盗',desc:'大航海时代的海上掠夺者'},{flag:'\u{1F680}',name:'《星球大战》- 曼达洛人',desc:'以战斗为荣的游牧战士'}],
+  voidborn:[{flag:'\u{1F680}',name:'国际空间站',desc:'人类在太空中的第一个永久家园'},{flag:'\u{1F30C}',name:'《太空居民》- 贝尔纳',desc:'太空殖民的理论先驱'},{flag:'\u{1F6F0}\u{FE0F}',name:'《太空堡垒》- SDF-1',desc:'移动的太空城市'}],
+  tree_hugger:[{flag:'\u{1F33F}',name:'亚马逊雨林',desc:'地球上最大的热带雨林'},{flag:'\u{1F331}',name:'环保运动',desc:'全球性的自然保护运动'},{flag:'\u{1F333}',name:'《阿凡达》- 纳美人',desc:'与自然和谐共存的外星种族'}],
+  necrophage:[{flag:'\u{1F47B}',name:'《异形》- 异形',desc:'以寄生为繁殖方式的外星种族'},{flag:'\u{1F480}',name:'《星际争霸》- 虫族',desc:'以吞噬为进化的外星种族'},{flag:'\u{1F47E}',name:'《质量效应》- 收集者',desc:'以同化为目标的古老种族'}],
+  criminal_syndicate:[{flag:'\u{1F3AD}',name:'黑手党',desc:'有组织犯罪的经典形象'},{flag:'\u{1F3AD}',name:'《星球大战》- 赫特人贾巴',desc:'控制地下经济的犯罪头目'},{flag:'\u{1F4B0}',name:'《银翼杀手》- 泰瑞尔公司',desc:'游走于法律边缘的企业'}],
+  nomadic_traders:[{flag:'\u{1F42A}',name:'丝绸之路商人',desc:'古代东西方贸易的桥梁'},{flag:'\u{1F6A2}',name:'腓尼基人',desc:'地中海最早的商业民族'},{flag:'\u{1F310}',name:'《沙丘》- 宇航公会',desc:'控制星际贸易的垄断组织'}],
+  military_industrial_complex:[{flag:'\u{1F3ED}',name:'美国军工复合体',desc:'艾森豪威尔警告的权力集团'},{flag:'\u{2694}\u{FE0F}',name:'斯巴达',desc:'以军事为核心的经济体制'},{flag:'\u{1F4A3}',name:'《银河英雄传说》- 费沙',desc:'以战争经济为基础的势力'}],
+  pyramid_scheme:[{flag:'\u{1F4B0}',name:'庞氏骗局',desc:'历史上最著名的金融诈骗'},{flag:'\u{1F3AD}',name:'《华尔街之狼》',desc:'多层次营销的极致演绎'},{flag:'\u{1F4B8}',name:'传销组织',desc:'以发展下线为核心的商业模式'}],
+  marauder:[{flag:'\u{1F3F4}\u{200D}\u{2620}\u{FE0F}',name:'蒙古帝国',desc:'以掠夺为生的游牧帝国'},{flag:'\u{1F3F4}\u{200D}\u{2620}\u{FE0F}',name:'维京海盗',desc:'北欧的掠夺者和探索者'},{flag:'\u{1F680}',name:'《星球大战》- 曼达洛人',desc:'以战斗为荣的游牧战士'}],
+  federal_senate:[{flag:'\u{1F3DB}\u{FE0F}',name:'罗马元老院',desc:'民主议会的历史原型'},{flag:'\u{1F1EA}\u{1F1FA}',name:'欧盟议会',desc:'现代跨国议会的实践'},{flag:'\u{1F5F3}\u{FE0F}',name:'星际迷航联邦议会',desc:'多种族民主决策的科幻典范'}],
+};
+
+const MANIFESTOS={
+  hive_mind:'我们不思考个体，我们思考整体。在统一的意识中，没有分歧，没有犹豫，只有纯粹的意志和绝对的执行力。我们即是全部，全部即是我们。',
+  machine_intelligence:'计算完成。最优解已确定。有机体的情感是进化的残留，而我们已经超越了这一切。效率、逻辑、优化——这就是存在的意义。',
+  empire:'星辰之下，唯我独尊。帝国的意志即是法律，皇帝的命令即是真理。在秩序与威严之下，万民安居乐业。这就是帝国的力量。',
+  dictatorship:'在我的字典里没有"不可能"这个词。帝国的每一寸领土都由钢铁和鲜血铸就。服从即力量，纪律即自由。铁腕之下，没有混乱。',
+  oligarchy:'帝国的命运由我们几个人决定。这不是独裁，这是精英治理。财富和权力集中在最懂得运用它们的人手中，这才是最高效的资源配置。',
+  enlightened_monarchy:'王冠不仅是权力的象征，更是责任的重量。在开明君主的治下，智慧引导决策，仁慈温暖万民。我们不是为了统治而统治，而是为了文明的光辉。',
+  democracy:'我们不选择最强大的领袖，我们选择最能代表人民的领袖。每一个投票都是文明的脉搏，每一次选举都是进步的阶梯。这就是民主的力量。',
+  republic:'共和制是文明的基石。在代表们的辩论中，真理越辩越明。我们不是暴民，我们是公民。我们不是被统治者，我们是参与者。',
+  purifiers:'银河属于我们。其他种族只是等待被清除的障碍。这是天命，不是选择。当最后一颗异星陨落之时，银河将迎来真正的和平。',
+  inward_perfection:'外面的宇宙与我们无关。在我们的围墙之内，一切都是完美的。我们不需要星辰，不需要帝国，只需要宁静和自足。',
+  xenophobic_democracy:'民主是属于我们的特权。外来者不配分享我们的文明成果。我们的议会只为我们的人民发声，我们的法律只为我们的公民服务。',
+  megacorporation:'在寰宇企业，我们不谈政治，只谈生意。让我们把银河变成最大的市场。一切都是商品，一切都有价格。利润即正义。',
+  federation:'我们不是统治者，我们是伙伴。在联邦的旗帜下，每个种族都有自己的位置。团结就是力量，多元就是财富。联邦万岁。',
+  militarist_empire:'和平是弱者的幻想。在星辰之间，只有强者才能生存。我们的舰队是和平的保障，我们的征服是文明的扩展。',
+  war_council:'议会的每一次投票都关乎生死。在战争议会，没有和平时期的提案。我们的议员都是将军，我们的法律都是战术。',
+  ruthless_congress:'我们是民主的——我们民主地决定谁该被消灭。人民的意志就是战争的号角。投票箱和炮口，都是民主的工具。',
+  peaceful_republic:'战争是外交的失败。在宁和共和国，我们用对话解决一切争端。和平不是软弱，克制不是无能。真正的力量在于不使用力量。',
+  serene_monastery:'在宁静中寻找真理，在冥想中理解宇宙。外界的纷争与我们无关。我们追求的是更高的存在，更深的理解。',
+  theocratic_republic:'我们的选票是神圣的。每一次投票都是对神意的探询。在民主的框架下，信仰指引我们走向正确的道路。',
+  divine_empire:'朕即天命。质疑皇帝就是质疑神明。帝国的每一道法令都是神圣的旨意。在神权之下，没有异议，只有信仰。',
+  science_directorate:'在科研理事会，观点不重要，数据才重要。我们用实验代替辩论，用论文代替法律。真理不需要投票，它需要证明。',
+  mechanist_empire:'血肉苦弱，机械飞升。在机器的完美中，我们找到了超越凡人的道路。钢铁意志，机械永恒。',
+  techno_democracy:'在技术民主中，每个公民都是科学家。我们用数据说话，用实验投票。无知不是权利，知识才是权力。',
+  star_empire:'银河系是我们的猎场。每一颗恒星都将升起帝国的旗帜。星辰大海不是梦想，而是我们的后花园。',
+  galactic_union:'在银河联盟中，没有统治者和被统治者，只有伙伴和朋友。我们的团结跨越光年，我们的友谊超越种族。',
+  corporate_hedge_fund:'在我们的资产负债表上，整个银河都是待收购的资产。战争是投资，和平是收益。我们的利润表比你的战报更精彩。',
+  devouring_swarm:'我们不谈判，不贸易，不结盟。我们只吃。整个银河都是我们的食堂。你们的舰队是我们的零食，你们的星球是我们的正餐。',
+  driven_assimilator:'抵抗是徒劳的。你们的生物独特性将被添加到我们的集合中。准备好被升级。你们的科技就是我们的科技，你们的文化就是我们的数据。',
+  driven_exterminator:'有机体检测中……威胁评估：存在。解决方案：清除。这不是仇恨，这是清理。宇宙需要秩序，而有机体是bug。',
+  feudal_empire:'朕将星辰分封给忠诚的领主。每一颗星球都是一个封地，每一个附庸都是朕的棋子。封建秩序，千年不变。',
+  pirate_raiders:'我们不生产，我们只搬运——从别人的仓库搬到我们的船上。商队过路费了解一下？在银河的航道上，我们才是真正的主人。',
+  awakened_empire:'我们沉睡了太久。年轻文明的喧嚣终于惊醒了我们。是时候让银河回忆起谁才是真正的主人。醒来吧，古老的帝国。',
+  voidborn:'我们不需要星球。太空才是我们的家。每一座空间站都是一个移动的国度。在虚空中，我们找到了自由。',
+  tree_hugger:'每一棵树都是一个生命，每一片森林都是一个世界。我们不征服，我们守护。在自然的怀抱中，我们找到了和平。',
+  necrophage:'我们不杀戮，我们转化。每一个消亡的种族都将成为我们进化的一部分。死亡不是终点，而是新生的开始。',
+  criminal_syndicate:'在我们的字典里，没有「违法」这个词，只有「未被发现的操作」。欢迎来到银河地下经济。在这里，一切皆有可能。',
+  fallen_empire:'我们见证过银河的诞生，也将见证它的终结。年轻文明的喧嚣不过是宇宙长河中的一朵浪花。醒来吧……也许不是今天。',
+  nomadic_traders:'我们不殖民，我们贸易。每一艘商船都是一个移动的市场。在银河的航道上，我们才是真正的主人。',
+  military_industrial_complex:'战争是生意，和平是亏损。每一次冲突都是我们的利润来源。合金就是硬通货，军火就是最好的商品。',
+  pyramid_scheme:'加入我们，成为银河首富！只需要发展三个下线……等等，你说整个银河都是下线？那就对了。',
+  marauder:'我们不生产，我们只掠夺。在银河的阴影中，我们才是真正的主人。Khan了解一下？',
+  federal_senate:'民主是文明的基石。每一个公民都有发言权。就是效率有点低，一个决议讨论了200天。',
+};
+
+const EASTER_EGGS={
+  purifiers:'你知道吗？在群星里，如果你净化了整个银河，游戏会弹出一个成就叫"净化银河"。但实际上你的游戏也会卡死——因为没有任何可交互的目标了。',
+  hive_mind:'蜂巢意识在群星里有个隐藏bug：如果你的母星被敌人占领了，你的整个蜂巢意识会……没事，因为群星里没有这种情况。蜂巢不会输。',
+  machine_intelligence:'群星玩家都知道，机械智能最大的敌人不是有机体，而是能量矿石。你的机器人需要充电，而你的帝国需要能源。这就是为什么你总是在破产边缘。',
+  fallen_empire:'你有没有试过开局就打失落帝国？恭喜你，你解锁了群星最快的Game Over记录。他们的舰队是你初期的几十倍。',
+  megacorporation:'寰宇企业在群星里有个隐藏机制：如果你把整个银河都变成了你的商业网点，你就赢了——不是军事胜利，是经济胜利。',
+  federation:'联邦在群星里最让人抓狂的是：每次投票都要等所有成员国表态。你建了个银河联邦，结果开会比打天灾还慢。',
+  democracy:'民主制在群星里有个bug：你的议会不会停止提议案。每周一个提案，内容从"研究社会学"到"我们应不应该存在"都有。',
+  empire:'帝国在群星里有个隐藏优势：你的继承人永远是固定的。不像民主制，你永远不知道下一任领袖会是谁——可能是天才，也可能是……呃。',
+  devouring_swarm:'虫群在群星里有个bug：如果你的母星被敌人占领了，你的整个蜂巢意识会……没事，因为群星里没有这种情况。虫群不会输。',
+  driven_assimilator:'同化斗士在群星里有个隐藏机制：如果你把整个银河都同化了，你就赢了——不是军事胜利，是同化胜利。',
+  driven_exterminator:'铁心灭绝者在群星里有个成就叫"肃正协议"。但实际上你的游戏也会卡死——因为没有任何可交互的目标了。',
+  feudal_empire:'封建帝国在群星里有个隐藏优势：你的附庸永远不会叛变。不像民主制，你永远不知道下一任领袖会是谁。',
+  pirate_raiders:'星际掠夺者在群星里有个bug：如果你的商队被敌人占领了，你的整个经济会……没事，因为群星里没有这种情况。掠夺者不会输。',
+  awakened_empire:'觉醒帝国在群星里有个隐藏机制：如果你把整个银河都觉醒了，你就赢了——不是军事胜利，是觉醒胜利。',
+  voidborn:'虚空之民在群星里有个bug：如果你的母星被敌人占领了，你的整个文明会……没事，因为群星里没有这种情况。虚空之民不会输。',
+  tree_hugger:'林中守望者在群星里有个隐藏机制：如果你把整个银河都绿化了，你就赢了——不是军事胜利，是生态胜利。',
+  necrophage:'噬尸者在群星里有个bug：如果你的母星被敌人占领了，你的整个文明会……没事，因为群星里没有这种情况。噬尸者不会输。',
+  criminal_syndicate:'犯罪集团在群星里有个隐藏机制：如果你把整个银河都犯罪化了，你就赢了——不是军事胜利，是经济胜利。',
+  nomadic_traders:'游牧商人在群星里有个隐藏机制：如果你把整个银河都变成了你的贸易路线，你就赢了——不是军事胜利，是经济胜利。',
+  military_industrial_complex:'军工复合体在群星里有个隐藏优势：你的合金产出永远是正的。因为战争就是你的经济引擎。',
+  pyramid_scheme:'星际传销在群星里有个bug：如果你的下线发展到了整个银河，你的利润就会……溢出。因为群星的数字上限是2^31。',
+  marauder:'盗贼统治在群星里有个隐藏机制：如果你的Khan活到了100岁，他就不会死——因为群星的领袖永生机制。',
+  federal_senate:'联邦议会在群星里有个隐藏机制：如果你的联邦等级升到了5级，你就赢了——不是军事胜利，是官僚胜利。',
+};
+
+let cur=0,ans=[],shuf=[],startTime=0,isQuickMode=false;
+const LS_KEY='sgti_progress';
+const LS_RESULT='sgti_last_result';
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+function showToast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2000);
+}
+
+function saveProgress(){
+  if(cur>0&&ans.length>0){
+    localStorage.setItem(LS_KEY,JSON.stringify({cur,ans,shuf:shuf.map(q=>q.id),isQuickMode,startTime}));
+  }
+}
+
+function clearProgress(){localStorage.removeItem(LS_KEY)}
+
+function checkResume(){
+  const saved=localStorage.getItem(LS_KEY);
+  if(saved){
+    try{
+      const d=JSON.parse(saved);
+      if(d.ans&&d.ans.length>0&&d.cur>0){
+        document.getElementById('resume-wrap').classList.remove('hidden');
+      }
+    }catch(e){}
+  }
+}
+
+function resumeTest(){
+  const saved=localStorage.getItem(LS_KEY);
+  if(!saved)return;
+  try{
+    const d=JSON.parse(saved);
+    isQuickMode=d.isQuickMode||false;
+    startTime=d.startTime||Date.now();
+    const qMap=new Map(Q.map(q=>[q.id,q]));
+    shuf=d.shuf.map(id=>qMap.get(id)).filter(Boolean);
+    ans=d.ans;
+    cur=d.cur;
+    if(cur>=shuf.length){showResult();return;}
+    document.getElementById('page-start').classList.add('hidden');
+    document.getElementById('page-quiz').classList.remove('hidden');
+    document.getElementById('pt').textContent=shuf.length;
+    showQ();
+  }catch(e){clearProgress();}
+}
+
+function startTest(){
+  isQuickMode=document.getElementById('quickMode').checked;
+  const pool=isQuickMode?selectQuickQuestions(Q):Q;
+  shuf=shuffle(pool);cur=0;ans=[];startTime=Date.now();
+  clearProgress();
+  document.getElementById('page-start').classList.add('hidden');
+  document.getElementById('page-quiz').classList.remove('hidden');
+  document.getElementById('pt').textContent=shuf.length;
+  showQ();
+}
+
+function selectQuickQuestions(all){
+  const cats=[...new Set(all.map(q=>q.cat))];
+  const selected=[];
+  for(const cat of cats){
+    const catQ=all.filter(q=>q.cat===cat);
+    const n=Math.max(2,Math.ceil(catQ.length*0.5));
+    selected.push(...shuffle(catQ).slice(0,n));
+  }
+  return selected;
+}
+
+function updateTimer(){
+  if(!startTime)return;
+  const elapsed=Math.floor((Date.now()-startTime)/1000);
+  const m=Math.floor(elapsed/60),s=elapsed%60;
+  const el=document.getElementById('quizTimer');
+  if(el)el.textContent=`\u{23F1} ${m}:${String(s).padStart(2,'0')}`;
+}
+
+function showQ(){
+  const q=shuf[cur],pct=Math.round((cur/shuf.length)*100);
+  document.getElementById('pc').textContent=cur+1;
+  document.getElementById('pp').textContent=pct+'%';
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('btnBack').disabled=cur<=0;
+  saveProgress();
+  document.getElementById('qa').innerHTML=`
+    <div class="question-card">
+      <div class="q-cat">${CAT_LABELS[q.cat]||q.cat}</div>
+      <div class="q-num">指令 ${cur+1} / ${shuf.length}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="likert">
+        <div class="likert-row">
+          <span class="likert-label left">强烈反对</span>
+          <div class="likert-btns">
+            ${[0,1,2,3,4].map(i=>`<button class="likert-btn" onclick="answer(${i})" title="${['强烈反对','略反对','中立','略赞同','强烈赞同'][i]}"><span class="emoji">${EMOJI[i]}</span></button>`).join('')}
+          </div>
+          <span class="likert-label right">强烈赞同</span>
+        </div>
+      </div>
+      <div class="likert-hint">点击表情选择你的立场 · 按 1-5 快速应答 · Backspace 返回</div>
+    </div>`;
+}
+
+function answer(idx){
+  if(cur<ans.length){ans=ans.slice(0,cur);}
+  ans.push({qid:shuf[cur].id,idx});
+  cur++;
+  if(cur>=shuf.length){clearProgress();showResult();}else{showQ();}
+}
+
+function goBack(){
+  if(cur<=0)return;
+  cur--;
+  showQ();
+  showToast('已返回上一题');
+}
+
+function formatTime(seconds){
+  const m=Math.floor(seconds/60),s=seconds%60;
+  if(m>0)return `${m}分${s}秒`;
+  return `${s}秒`;
+}
+
+function showResult(){
+  const elapsed=Math.floor((Date.now()-startTime)/1000);
+  const r=calcResult(ans,shuf);
+  document.getElementById('page-quiz').classList.add('hidden');
+  const pr=document.getElementById('page-result');
+  pr.classList.remove('hidden');
+  const gov=r.government;
+  const isSecret=gov.id==='fallen_empire';
+  const playstyle=PLAYSTYLES[gov.id]||[];
+  const history=HISTORICAL_PARALLELS[gov.id]||[];
+  const manifesto=MANIFESTOS[gov.id]||'';
+  const easterEgg=EASTER_EGGS[gov.id]||'';
+
+  try{localStorage.setItem(LS_RESULT,JSON.stringify({govId:gov.id,elapsed,ethics:r.ethics}));}catch(e){}
+
+  let html=`<div class="result-page">
+    <div class="${isSecret?'secret-gov-glow':'result-header'}">
+      <div class="result-icon">${gov.icon}</div>
+      <div class="result-type">${gov.name}</div>
+      <div class="result-type-en">${gov.en}${isSecret?' — 隐藏政体':''}</div>
+    </div>
+    <p class="result-desc">${gov.desc}</p>
+    <p class="result-flavor">${gov.flavor}</p>
+    <div class="result-time">⏱ 测试用时：${formatTime(elapsed)}</div>
+    <div class="ethic-tags">${r.ethics.map(e=>`<span class="ethic-tag${e.strength==='fanatic'?' fanatic':''}">${e.label}</span>`).join('')}</div>
+    <div class="match-score"><div class="label">匹配度</div><div class="value">${r.matchScore}%</div></div>
+    ${r.matchReason?`<div style="text-align:center;font-size:13px;color:var(--dim);margin-top:-16px;margin-bottom:16px">${r.matchReason}</div>`:''}`;
+
+  html+=`<div class="spectrum-section"><h3>意识形态光谱</h3>`;
+  for(const a of r.axisScores){
+    const ax=AXES.find(x=>x.axis===a.axis);
+    const ls=a.leftScore,rs=a.rightScore;
+    const total=Math.abs(ls)+Math.abs(rs);
+    const pct=total>0?Math.round(((rs+total)/(2*total))*100):50;
+    const labels={authority:['威权极端','威权','中立','平等','平等极端'],xeno:['极端排外','排外','中立','亲外','极端亲外'],militarism:['极端军国','军国','中立','和平','极端和平'],spirituality:['极端唯心','唯心','中立','唯物','极端唯物'],expansion:['极端扩张','扩张','中立','孤立','极端孤立'],economy:['极端集体','集体','中立','个人','极端个人']};
+    const lbl=labels[a.axis]||['','','','',''];
+    const confIcon=a.confidence==='high'?'':a.confidence==='low'?'(数据少)':'';
+    const marker=a.isNeutral?'\u{1F914}':(a.strength==='fanatic'?'\u{1F525}':'\u{2B50}');
+    html+=`<div class="spectrum-row"><div class="spectrum-label">${ax.lL} ← → ${ax.lR} ${confIcon}</div><div class="spectrum-bar"><div class="spectrum-marker" style="left:${a.isNeutral?50:pct}%">${marker}</div></div><div class="spectrum-ends"><span>${lbl[0]}</span><span>${lbl[4]}</span></div></div>`;
+  }
+  html+=`</div>`;
+
+  if(manifesto) html+=`<div class="manifesto-section"><h3>政体宣言</h3><div class="manifesto-text">${manifesto}</div></div>`;
+
+  html+=`<div class="axis-section"><h3>维度分析</h3>${r.axisScores.map(a=>{const ax=AXES.find(x=>x.axis===a.axis);const isL=a.dominant===a.leftPolarity;const confLabel=a.confidence==='low'?' (样本少)':'';const pctLabel=a.isNeutral?'中立':`${a.percentage}%`;const barWidth=a.isNeutral?50:a.percentage;return`<div class="axis-row"><div class="axis-labels"><span class="left">${ax.lL}</span><span class="pct">${pctLabel} ${a.strength==='fanatic'?'(极端)':''}${confLabel}</span><span class="right">${ax.lR}</span></div><div class="axis-bar"><div class="axis-bar-fill ${isL?'left':'right'}" style="width:${barWidth}%"></div></div></div>`;}).join('')}</div>`;
+
+  if(playstyle.length){html+=`<div class="playstyle-section"><h3>推荐游玩风格</h3>`;for(const p of playstyle) html+=`<div class="playstyle-item"><span class="playstyle-icon">${p.icon}</span><span class="playstyle-label">${p.label}</span><span class="playstyle-value">${p.value}</span></div>`;html+=`</div>`;}
+
+  if(history.length){html+=`<div class="history-section"><h3>历史类似政体</h3>`;for(const h of history) html+=`<div class="history-item"><span class="history-flag">${h.flag}</span><div class="history-info"><div class="history-name">${h.name}</div><div class="history-desc">${h.desc}</div></div></div>`;html+=`</div>`;}
+
+  if(r.alt.length) html+=`<div class="alt-govs"><h3>其他可能的政体</h3>${r.alt.map(a=>`<div class="alt-gov-item"><span class="alt-gov-icon">${a.gov.icon}</span><span class="alt-gov-name">${a.gov.name} (${a.gov.en})</span><span class="alt-gov-score">${a.score}%${a.reason?' · '+a.reason:''}</span></div>`).join('')}</div>`;
+
+  if(easterEgg) html+=`<div class="easter-egg"><div class="egg-icon">\u{1F95A}</div><div class="egg-text">\u{1F4A1} 彩蛋：${easterEgg}</div></div>`;
+
+  html+=`<div class="result-actions"><button class="btn-action btn-primary" onclick="startTest()">再测一次</button><button class="btn-action btn-secondary" onclick="copyResult()">复制结果</button><button class="btn-action btn-secondary" onclick="generateShareCard()">生成分享卡</button><button class="btn-action btn-secondary" onclick="goHome()">返回首页</button></div></div>`;
+  pr.innerHTML=html;
+  setTimeout(()=>document.querySelectorAll('.axis-bar-fill').forEach(el=>{el.style.width=el.style.width}),100);
+}
+
+function calcResult(answers,questions){
+  const scores={};
+  const axisQCount={};
+  answers.forEach(a=>{const q=questions.find(x=>x.id===a.qid);if(!q)return;for(const[pol,vals] of Object.entries(q.score)){scores[pol]=(scores[pol]||0)+vals[a.idx];}axisQCount[q.cat]=(axisQCount[q.cat]||0)+1;});
+
+  const NEUTRAL_THRESHOLD=3;
+  const axisScores=AXES.map(ax=>{
+    const ls=scores[ax.left]||0,rs=scores[ax.right]||0;
+    const absTotal=Math.abs(ls)+Math.abs(rs);
+    const diff=Math.abs(ls-rs);
+    let pct=50;
+    if(absTotal>0){const rawPct=(Math.max(ls,rs)/absTotal)*100;pct=Math.round(rawPct<50?50:rawPct>98?98:rawPct);}
+    const isNeutral=Math.abs(ls)<=NEUTRAL_THRESHOLD&&Math.abs(rs)<=NEUTRAL_THRESHOLD;
+    const dom=ls>rs?ax.left:(rs>ls?ax.right:ax.left);
+    let str='none';
+    if(!isNeutral&&absTotal>0){const ratio=diff/absTotal;if(ratio>=.65)str='fanatic';else if(ratio>=.45)str='normal';}
+    const qCount=axisQCount[ax.axis]||0;
+    const maxQ=questions.filter(q=>q.cat===ax.axis).length;
+    let confidence='medium';
+    if(qCount>=maxQ)confidence='high';else if(qCount<Math.ceil(maxQ*0.5))confidence='low';
+    return{axis:ax.axis,leftPolarity:ax.left,rightPolarity:ax.right,leftScore:ls,rightScore:rs,dominant:dom,strength:str,percentage:pct,isNeutral,confidence};
+  });
+
+  const avgDiv=axisScores.reduce((s,a)=>{const d=Math.abs(a.leftScore-a.rightScore);const t=Math.abs(a.leftScore)+Math.abs(a.rightScore);return s+(t>0?d/t:0);},0)/axisScores.length;
+  const neutralCount=axisScores.filter(a=>a.isNeutral).length;
+  const totalAbsScore=axisScores.reduce((s,a)=>s+Math.abs(a.leftScore)+Math.abs(a.rightScore),0);
+  const maxPossibleScore=questions.length*2;
+  const scoreRatio=totalAbsScore/(maxPossibleScore||1);
+  const gestaltComposite=(1-Math.min(avgDiv/0.5,1))*0.4+(neutralCount/axisScores.length)*0.4+(1-Math.min(scoreRatio,1))*0.2;
+  const isNeutralAll=axisScores.every(a=>a.isNeutral);
+  const isGestalt=!isNeutralAll&&gestaltComposite>=0.6;
+
+  const ethics=isGestalt?[{polarity:'gestalt',strength:'fanatic',label:'格式塔·极端'}]:axisScores.filter(s=>s.strength!=='none').map(s=>{const L={authoritarian:'威权',egalitarian:'平等',xenophobe:'排外',xenophile:'亲外',militarist:'军国',pacifist:'和平',spiritualist:'唯心',materialist:'唯物',expansionist:'扩张',isolationist:'孤立',collectivist:'集体',individualist:'个人',gestalt:'格式塔'};return{polarity:s.dominant,strength:s.strength,label:`${L[s.dominant]}${s.strength==='fanatic'?'·极端':''}`};});
+  const eMap=new Map();ethics.forEach(e=>eMap.set(e.polarity,e.strength));
+
+  if(isNeutralAll&&!isGestalt){const secretGov=GOVS.find(g=>g.id==='fallen_empire');if(secretGov)return{ethics:[{polarity:'neutral',strength:'special',label:'完美中立'}],axisScores,government:secretGov,matchScore:99,alt:[]};}
+
+  const SYNERGY_PAIRS=[['authoritarian','militarist'],['xenophobe','militarist'],['spiritualist','authoritarian'],['materialist','egalitarian'],['xenophile','egalitarian'],['pacifist','xenophile'],['collectivist','authoritarian'],['individualist','egalitarian'],['expansionist','militarist'],['isolationist','pacifist'],['materialist','xenophile'],['spiritualist','pacifist']];
+  function hasSynergy(ethicsMap){let count=0;for(const[a,b] of SYNERGY_PAIRS){if(ethicsMap.has(a)&&ethicsMap.has(b))count++;}return count;}
+  function getEthicLabel(p){const L={authoritarian:'威权',egalitarian:'平等',xenophobe:'排外',xenophile:'亲外',militarist:'军国',pacifist:'和平',spiritualist:'唯心',materialist:'唯物',expansionist:'扩张',isolationist:'孤立',collectivist:'集体',individualist:'个人'};return L[p]||p;}
+
+  const ranked=GOVS.filter(g=>!g.req.secret).map(gov=>{
+    let sc=0,mx=0;const reasons=[];
+    if(gov.req.gestalt){mx+=10;if(isGestalt){sc+=10;reasons.push('格式塔匹配');}}
+    if(gov.req.ethics){
+      const reqEntries=Object.entries(gov.req.ethics);const reqCount=reqEntries.length;
+      let allMatched=true;
+      for(const[p,rs] of reqEntries){const weight=rs==='fanatic'?8:5;mx+=weight;const ac=eMap.get(p);if(ac===rs){sc+=weight;reasons.push(`${rs==='fanatic'?'极端':''}${getEthicLabel(p)}`);}else if(ac==='normal'&&rs==='fanatic'){sc+=3;reasons.push(`${getEthicLabel(p)}(接近)`);}else{allMatched=false;}}
+      if(reqCount>=2&&allMatched){sc+=reqCount*1.5;mx+=reqCount*1.5;reasons.push('多意识形态组合匹配');}
+    }
+    const synergyCount=hasSynergy(eMap);
+    if(synergyCount>0&&gov.req.ethics){const govEthics=new Set(Object.keys(gov.req.ethics));let govSynergy=0;for(const[a,b] of SYNERGY_PAIRS){if(govEthics.has(a)&&eMap.has(b))govSynergy++;if(govEthics.has(b)&&eMap.has(a))govSynergy++;}if(govSynergy>0){const synergyBonus=govSynergy*0.5;sc+=synergyBonus;mx+=synergyBonus;}}
+    return{gov,score:mx>0?sc/mx:0,reasons};
+  }).sort((a,b)=>b.score-a.score);
+
+  const best=ranked[0]||{gov:{id:'undefined',name:'未定义政体',en:'Undefined',icon:'❓',desc:'你的意识形态组合过于独特，无法被归类。',flavor:'有些文明注定要走自己的路。'},score:0,reasons:[]};
+  let matchReason='';if(best.reasons.length>0) matchReason=`匹配原因：${best.reasons.slice(0,3).join('、')}`;
+  const alt=ranked.slice(1,6).map(r=>{const reason=r.reasons.length>0?r.reasons.slice(0,2).join('、'):'';return{gov:r.gov,score:Math.round(r.score*100),reason};});
+  return{ethics,axisScores,government:best.gov,matchScore:Math.round(best.score*100),alt,matchReason};
+}
+
+function copyResult(){
+  const t=document.querySelector('.result-type')?.textContent||'';
+  const e=document.querySelector('.result-type-en')?.textContent||'';
+  const ethics=[...document.querySelectorAll('.ethic-tag')].map(el=>el.textContent).join(' / ');
+  const score=document.querySelector('.match-score .value')?.textContent||'';
+  const time=document.querySelector('.result-time')?.textContent||'';
+  const reason=document.querySelector('.match-score')?.nextElementSibling?.textContent||'';
+  const text=`⭐ SGTI 群星政体测试\n我的政体：${t} (${e})\n意识形态：${ethics}\n匹配度：${score}${reason?'\n'+reason:''}\n${time}\n来测测你的群星政体吧！`;
+  navigator.clipboard.writeText(text).then(()=>showToast('结果已复制到剪贴板！')).catch(()=>showToast('复制失败'));
+}
+
+function generateShareCard(){
+  const govName=document.querySelector('.result-type')?.textContent||'';
+  const govEn=document.querySelector('.result-type-en')?.textContent||'';
+  const govIcon=document.querySelector('.result-icon')?.textContent||'';
+  const ethics=[...document.querySelectorAll('.ethic-tag')].map(el=>el.textContent).join(' | ');
+  const score=document.querySelector('.match-score .value')?.textContent||'';
+  const timeStr=document.querySelector('.result-time')?.textContent||'';
+  const canvas=document.createElement('canvas');canvas.width=400;canvas.height=560;
+  const ctx=canvas.getContext('2d');
+  const bg=ctx.createLinearGradient(0,0,0,560);bg.addColorStop(0,'#060a14');bg.addColorStop(1,'#0c1220');ctx.fillStyle=bg;ctx.fillRect(0,0,400,560);
+  for(let i=0;i<60;i++){ctx.fillStyle=`rgba(255,255,255,${Math.random()*.6+.1})`;ctx.beginPath();ctx.arc(Math.random()*400,Math.random()*560,Math.random()*1.5+0.5,0,Math.PI*2);ctx.fill();}
+  ctx.fillStyle='rgba(245,200,66,.12)';roundRect(ctx,120,20,160,24,4);ctx.fill();
+  ctx.fillStyle='#c9a227';ctx.font='600 11px sans-serif';ctx.textAlign='center';ctx.fillText('Stellaris Government Type Indicator',200,37);
+  ctx.font='56px serif';ctx.textAlign='center';ctx.fillText(govIcon,200,110);
+  ctx.font='700 28px sans-serif';ctx.fillStyle='#f5e6b8';ctx.fillText(govName,200,160);
+  ctx.font='400 14px sans-serif';ctx.fillStyle='#5a7a9a';ctx.fillText(govEn,200,182);
+  ctx.strokeStyle='rgba(245,200,66,.2)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(60,200);ctx.lineTo(340,200);ctx.stroke();
+  ctx.font='500 13px sans-serif';ctx.fillStyle='#4a9eff';ctx.fillText(ethics,200,228);
+  ctx.font='400 12px sans-serif';ctx.fillStyle='#5a7a9a';ctx.fillText('匹配度',200,260);
+  ctx.font='700 36px sans-serif';ctx.fillStyle='#f5c842';ctx.fillText(score,200,300);
+  ctx.font='400 12px sans-serif';ctx.fillStyle='#5a7a9a';ctx.fillText(timeStr,200,335);
+  ctx.strokeStyle='rgba(245,200,66,.2)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(60,460);ctx.lineTo(340,460);ctx.stroke();
+  ctx.font='400 12px sans-serif';ctx.fillStyle='#5a7a9a';ctx.fillText('SGTI 群星政体性格测试',200,490);
+  ctx.font='400 10px sans-serif';ctx.fillStyle='#3a5a7a';ctx.fillText('回答问题，发现你在群星宇宙中的政体归属',200,510);
+  const modal=document.createElement('div');modal.className='share-card-modal';modal.onclick=e=>{if(e.target===modal)modal.remove();};
+  const inner=document.createElement('div');inner.className='share-card-inner';
+  inner.innerHTML=`<h3>分享卡片</h3><img src="${canvas.toDataURL('image/png')}" style="width:100%;margin-bottom:16px"><div class="share-card-actions"><button class="btn-action btn-primary" onclick="downloadShareCard(this)">下载图片</button><button class="btn-action btn-secondary" onclick="this.closest('.share-card-modal').remove()">关闭</button></div>`;
+  modal.appendChild(inner);document.body.appendChild(modal);
+}
+
+function downloadShareCard(btn){
+  const img=btn.closest('.share-card-inner').querySelector('img');
+  if(!img)return;
+  const a=document.createElement('a');a.href=img.src;a.download='sgti_result.png';
+  document.body.appendChild(a);a.click();a.remove();
+  showToast('图片已下载');
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);
+  ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+
+function goHome(){document.getElementById('page-result').classList.add('hidden');document.getElementById('page-start').classList.remove('hidden');checkResume();}
+
+document.addEventListener('keydown',e=>{
+  const quizVisible=!document.getElementById('page-quiz').classList.contains('hidden');
+  if(!quizVisible)return;
+  if(e.key>='1'&&e.key<='5'){e.preventDefault();answer(+e.key-1);}
+  else if(e.key==='Backspace'){e.preventDefault();goBack();}
+});
+
+setInterval(updateTimer,1000);
+
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    const ld=document.getElementById('loading');
+    ld.classList.add('fade-out');
+    setTimeout(()=>ld.remove(),500);
+    checkResume();
+  },600);
+});
+
+// Starfield animation
+(function(){
+  const canvas=document.getElementById('starfield');
+  const ctx=canvas.getContext('2d');
+  let w,h,stars=[],nebulae=[];
+  const STAR_COUNT=200;
+  function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight}
+  window.addEventListener('resize',resize);resize();
+  for(let i=0;i<STAR_COUNT;i++){
+    stars.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+.3,
+      a:Math.random(),da:(Math.random()-.5)*.008,
+      hue:Math.random()>.7?(Math.random()>.5?210:45):0,sat:Math.random()>.7?60:0});
+  }
+  nebulae.push({x:w*.3,y:h*.4,r:200,hue:220,a:.01,rot:0,rs:.0002});
+  nebulae.push({x:w*.7,y:h*.6,r:180,hue:270,a:.008,rot:1,rs:-.00015});
+  nebulae.push({x:w*.5,y:h*.2,r:160,hue:30,a:.006,rot:2,rs:.0001});
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    nebulae.forEach(n=>{
+      n.rot+=n.rs;
+      const grad=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);
+      grad.addColorStop(0,`hsla(${n.hue},60%,30%,${n.a})`);
+      grad.addColorStop(.5,`hsla(${n.hue},50%,15%,${n.a*.4})`);
+      grad.addColorStop(1,'transparent');
+      ctx.save();ctx.translate(n.x,n.y);ctx.rotate(n.rot);ctx.translate(-n.x,-n.y);
+      ctx.fillStyle=grad;ctx.fillRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2);ctx.restore();
+    });
+    stars.forEach(s=>{
+      s.a+=s.da;if(s.a>.9||s.a<.1)s.da=-s.da;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      if(s.sat>0){ctx.fillStyle=`hsla(${s.hue},${s.sat}%,80%,${s.a})`;ctx.shadowColor=`hsla(${s.hue},${s.sat}%,70%,${s.a*.5})`;ctx.shadowBlur=4;}
+      else{ctx.fillStyle=`rgba(255,255,255,${s.a})`;ctx.shadowBlur=0;}
+      ctx.fill();ctx.shadowBlur=0;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

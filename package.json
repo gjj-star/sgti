@@ -1,0 +1,14 @@
+{
+  "name": "stellaris-government-quiz",
+  "version": "1.0.0",
+  "description": "群星(Stellaris)政体性格测试 - 找出你在群星宇宙中的政体归属",
+  "type": "module",
+  "scripts": {
+    "start": "npx tsx src/index.ts",
+    "test": "npx tsx src/test.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
