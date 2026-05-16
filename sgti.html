@@ -273,6 +273,11 @@
   .btn-secondary:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px);
     box-shadow:0 0 16px rgba(74,158,255,.08)}
 
+  .gov-card-canvas{display:block;margin:0 auto 28px;width:300px;height:400px;
+    filter:drop-shadow(0 0 30px rgba(74,158,255,.15)) drop-shadow(0 8px 24px rgba(0,0,0,.5));
+    animation:cardReveal .8s cubic-bezier(.2,.8,.3,1) .15s both}
+  @keyframes cardReveal{from{opacity:0;transform:scale(.92) translateY(20px);filter:brightness(2) blur(6px) drop-shadow(0 0 30px rgba(74,158,255,.15)) drop-shadow(0 8px 24px rgba(0,0,0,.5))}to{opacity:1;transform:scale(1) translateY(0);filter:brightness(1) blur(0) drop-shadow(0 0 30px rgba(74,158,255,.15)) drop-shadow(0 8px 24px rgba(0,0,0,.5))}}
+
   .hidden{display:none!important}
   @media(max-width:480px){
     .hero h1{font-size:40px;letter-spacing:4px}
@@ -286,6 +291,7 @@
     .result-actions{flex-direction:column;align-items:center}
     .btn-action{width:80%;text-align:center}
     .spectrum-marker{width:28px;height:28px;font-size:12px}
+    .gov-card-canvas{width:260px;height:347px}
   }
 </style>
 </head>
@@ -797,7 +803,8 @@ function showResult(){
 
   let html=`<div class="result-page">
     <div class="${isSecret?'secret-gov-glow':'result-header'}">
-      <div class="result-icon">${gov.icon}</div>
+      <div id="gov-card-container"></div>
+      <div class="result-icon" style="font-size:56px;margin-bottom:10px">${gov.icon}</div>
       <div class="result-type">${gov.name}</div>
       <div class="result-type-en">${gov.en}${isSecret?' — 隐藏政体':''}</div>
     </div>
@@ -836,6 +843,15 @@ function showResult(){
 
   html+=`<div class="result-actions"><button class="btn-action btn-primary" onclick="startTest()">再测一次</button><button class="btn-action btn-secondary" onclick="copyResult()">复制结果</button><button class="btn-action btn-secondary" onclick="generateShareCard()">生成分享卡</button><button class="btn-action btn-secondary" onclick="goHome()">返回首页</button></div></div>`;
   pr.innerHTML=html;
+
+  // Generate and insert Canvas government card
+  try{
+    const cardCanvas=generateGovCard(gov.id,gov.name,gov.en,gov.icon);
+    cardCanvas.className='gov-card-canvas';
+    const container=document.getElementById('gov-card-container');
+    if(container)container.appendChild(cardCanvas);
+  }catch(e){console.warn('Gov card generation failed:',e);}
+
   setTimeout(()=>document.querySelectorAll('.axis-bar-fill').forEach(el=>{el.style.width=el.style.width}),100);
 }
 
@@ -953,6 +969,456 @@ function roundRect(ctx,x,y,w,h,r){
   ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
   ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);
   ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+
+/* ═══════════════════════════════════════════
+   Canvas Government Type Card Generator
+   ═══════════════════════════════════════════ */
+
+function getGovCategory(id){
+  const cats={
+    gestalt:['hive_mind','machine_intelligence','devouring_swarm','driven_assimilator','driven_exterminator'],
+    authoritarian:['empire','dictatorship','oligarchy','enlightened_monarchy','feudal_empire','necrophage'],
+    democratic:['democracy','republic','xenophobic_democracy','federal_senate','techno_democracy'],
+    militarist:['militarist_empire','war_council','ruthless_congress','star_empire','pirate_raiders','marauder','military_industrial_complex'],
+    pacifist:['peaceful_republic','serene_monastery','inward_perfection','galactic_union','tree_hugger'],
+    spiritualist:['theocratic_republic','divine_empire','serene_monastery'],
+    materialist:['science_directorate','mechanist_empire','techno_democracy','voidborn'],
+    corporate:['megacorporation','corporate_hedge_fund','criminal_syndicate','nomadic_traders','pyramid_scheme'],
+    special:['purifiers','awakened_empire','fallen_empire']
+  };
+  for(const[cat,ids] of Object.entries(cats)){if(ids.includes(id))return cat;}
+  return 'authoritarian';
+}
+
+function getGovColors(cat){
+  const C={
+    gestalt:{primary:'#06d6d4',secondary:'#22c55e',accent:'#06d6d4',bg1:'#040810',bg2:'#061018',bg3:'#061414'},
+    authoritarian:{primary:'#ef4444',secondary:'#f5c842',accent:'#f97316',bg1:'#120808',bg2:'#140a06',bg3:'#100808'},
+    democratic:{primary:'#4a9eff',secondary:'#60a5fa',accent:'#93c5fd',bg1:'#060a18',bg2:'#081020',bg3:'#060c16'},
+    militarist:{primary:'#ef4444',secondary:'#f97316',accent:'#fbbf24',bg1:'#140808',bg2:'#120606',bg3:'#100606'},
+    pacifist:{primary:'#8b5cf6',secondary:'#06d6d4',accent:'#a78bfa',bg1:'#0a0814',bg2:'#0c0a18',bg3:'#080810'},
+    spiritualist:{primary:'#c084fc',secondary:'#f5c842',accent:'#d8b4fe',bg1:'#0e0818',bg2:'#100814',bg3:'#0c0612'},
+    materialist:{primary:'#06d6d4',secondary:'#4a9eff',accent:'#22d3ee',bg1:'#060c14',bg2:'#081018',bg3:'#061014'},
+    corporate:{primary:'#f5c842',secondary:'#f97316',accent:'#fbbf24',bg1:'#100e06',bg2:'#121008',bg3:'#0e0c06'},
+    special:{primary:'#f5c842',secondary:'#ef4444',accent:'#ff6b6b',bg1:'#0a0a14',bg2:'#120808',bg3:'#0c0810'}
+  };
+  return C[cat]||C.authoritarian;
+}
+
+// --- Background Patterns ---
+
+function drawStarfieldPattern(ctx,W,H,col){
+  for(let i=0;i<80;i++){
+    const x=Math.random()*W,y=Math.random()*H,r=Math.random()*1.5+.3;
+    const a=Math.random()*.4+.1;
+    ctx.fillStyle=`rgba(255,255,255,${a})`;
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+  }
+  for(let i=0;i<12;i++){
+    const x=Math.random()*W,y=Math.random()*H,r=Math.random()*80+40;
+    const g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,col.primary+'0d');g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);
+  }
+}
+
+function drawNeuralPattern(ctx,W,H,col){
+  ctx.globalAlpha=.08;
+  for(let i=0;i<30;i++){
+    const x=50+Math.random()*(W-100),y=80+Math.random()*(H-160);
+    ctx.fillStyle=col.primary;ctx.beginPath();ctx.arc(x,y,2+Math.random()*2,0,Math.PI*2);ctx.fill();
+    for(let j=0;j<2+Math.random()*3;j++){
+      const tx=x+Math.random()*120-60,ty=y+Math.random()*120-60;
+      ctx.strokeStyle=col.primary;ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(tx,ty);ctx.stroke();
+      ctx.beginPath();ctx.arc(tx,ty,1+Math.random(),0,Math.PI*2);ctx.fill();
+    }
+  }
+  ctx.globalAlpha=1;
+  for(let i=0;i<20;i++){
+    const x=Math.random()*W,y=Math.random()*H,r=Math.random()*50+20;
+    const g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,col.accent+'08');g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);
+  }
+}
+
+function drawCircuitPattern(ctx,W,H,col){
+  ctx.globalAlpha=.06;ctx.strokeStyle=col.primary;ctx.lineWidth=1;
+  const gridSize=40;
+  for(let x=gridSize;x<W;x+=gridSize){
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+  }
+  for(let y=gridSize;y<H;y+=gridSize){
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+  }
+  ctx.globalAlpha=.15;ctx.fillStyle=col.secondary;
+  for(let i=0;i<20;i++){
+    const gx=Math.floor(Math.random()*(W/gridSize))*gridSize;
+    const gy=Math.floor(Math.random()*(H/gridSize))*gridSize;
+    ctx.beginPath();ctx.arc(gx+gridSize/2,gy+gridSize/2,3,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=.08;ctx.strokeStyle=col.secondary;ctx.lineWidth=2;
+  for(let i=0;i<8;i++){
+    let x=Math.floor(Math.random()*(W/gridSize))*gridSize;
+    let y=Math.floor(Math.random()*(H/gridSize))*gridSize;
+    ctx.beginPath();ctx.moveTo(x,y);
+    for(let s=0;s<4+Math.floor(Math.random()*4);s++){
+      if(Math.random()>.5)x+=gridSize*(Math.random()>.5?1:-1);
+      else y+=gridSize*(Math.random()>.5?1:-1);
+      x=Math.max(0,Math.min(W,x));y=Math.max(0,Math.min(H,y));
+      ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawHexGridPattern(ctx,W,H,col){
+  const size=28,h=size*Math.sqrt(3);
+  ctx.globalAlpha=.07;ctx.strokeStyle=col.primary;ctx.lineWidth=.8;
+  for(let row=-1;row<H/h+1;row++){
+    for(let col2=-1;col2<W/(size*1.5)+1;col2++){
+      const cx=col2*size*1.5+(row%2?size*.75:0);
+      const cy=row*h*.5;
+      ctx.beginPath();
+      for(let i=0;i<6;i++){
+        const angle=Math.PI/3*i+Math.PI/6;
+        const px=cx+size*.8*Math.cos(angle),py=cy+size*.8*Math.sin(angle);
+        i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+      }
+      ctx.closePath();ctx.stroke();
+    }
+  }
+  ctx.globalAlpha=1;
+  for(let i=0;i<15;i++){
+    const x=Math.random()*W,y=Math.random()*H,r=Math.random()*60+30;
+    const g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,col.accent+'0a');g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);
+  }
+}
+
+function drawOrbitalPattern(ctx,W,H,col){
+  ctx.globalAlpha=.06;
+  for(let i=0;i<5;i++){
+    const cx=W/2,cy=H/2+Math.random()*40-20;
+    const rx=60+i*35,ry=30+i*18;
+    const rot=Math.random()*Math.PI;
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(rot);
+    ctx.strokeStyle=col.primary;ctx.lineWidth=.8;
+    ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,Math.PI*2);ctx.stroke();
+    const dotAngle=Math.random()*Math.PI*2;
+    ctx.fillStyle=col.secondary;ctx.beginPath();
+    ctx.arc(rx*Math.cos(dotAngle),ry*Math.sin(dotAngle),2.5,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+  const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,80);
+  g.addColorStop(0,col.primary+'20');g.addColorStop(.5,col.primary+'08');g.addColorStop(1,'transparent');
+  ctx.globalAlpha=1;ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+}
+
+function drawGeometricPattern(ctx,W,H,col){
+  ctx.globalAlpha=.06;ctx.strokeStyle=col.accent;ctx.lineWidth=.6;
+  for(let i=0;i<25;i++){
+    const x=Math.random()*W,y=Math.random()*H;
+    const size=10+Math.random()*30;
+    const angle=Math.random()*Math.PI;
+    const sides=3+Math.floor(Math.random()*4);
+    ctx.beginPath();
+    for(let s=0;s<sides;s++){
+      const a=angle+Math.PI*2/sides*s;
+      const px=x+size*Math.cos(a),py=y+size*Math.sin(a);
+      s===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.closePath();ctx.stroke();
+  }
+  ctx.globalAlpha=.04;ctx.strokeStyle=col.primary;ctx.lineWidth=.4;
+  for(let i=0;i<8;i++){
+    ctx.beginPath();
+    ctx.moveTo(Math.random()*W,0);ctx.lineTo(Math.random()*W,H);ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0,Math.random()*H);ctx.lineTo(W,Math.random()*H);ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawSacredPattern(ctx,W,H,col){
+  ctx.globalAlpha=.07;
+  const cx=W/2,cy=H/2+20;
+  for(let r=40;r<=160;r+=40){
+    ctx.strokeStyle=col.accent;ctx.lineWidth=.6;
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();
+  }
+  const petals=12;
+  for(let i=0;i<petals;i++){
+    const angle=Math.PI*2/petals*i;
+    const x1=cx+50*Math.cos(angle),y1=cy+50*Math.sin(angle);
+    const x2=cx+150*Math.cos(angle),y2=cy+150*Math.sin(angle);
+    ctx.strokeStyle=col.secondary;ctx.lineWidth=.5;
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  }
+  for(let ring=1;ring<=2;ring++){
+    const rr=ring*60;
+    for(let i=0;i<petals;i++){
+      const angle=Math.PI*2/petals*i+Math.PI/petals;
+      ctx.fillStyle=col.accent;ctx.globalAlpha=.12;
+      ctx.beginPath();ctx.arc(cx+rr*Math.cos(angle),cy+rr*Math.sin(angle),2,0,Math.PI*2);ctx.fill();
+    }
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawOrganicPattern(ctx,W,H,col){
+  for(let i=0;i<8;i++){
+    let x=Math.random()*W,y=Math.random()*H;
+    ctx.globalAlpha=.04;ctx.strokeStyle=col.primary;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(x,y);
+    for(let s=0;s<8;s++){
+      x+=Math.random()*60-30;y+=Math.random()*40-10;
+      ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+  for(let i=0;i<30;i++){
+    const x=Math.random()*W,y=Math.random()*H,r=Math.random()*15+5;
+    const a=Math.random()*.03+.01;
+    const g=ctx.createRadialGradient(x,y,r*.3,x,y,r);
+    g.addColorStop(0,col.secondary+Math.round(a*255).toString(16).padStart(2,'0'));
+    g.addColorStop(1,'transparent');
+    ctx.globalAlpha=1;ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);
+  }
+}
+
+function drawWarGeometric(ctx,W,H,col){
+  ctx.globalAlpha=.06;ctx.strokeStyle=col.primary;ctx.lineWidth=1;
+  for(let i=0;i<6;i++){
+    const x=Math.random()*W,y=Math.random()*H;
+    const size=30+Math.random()*50;
+    ctx.beginPath();
+    ctx.moveTo(x,y-size);ctx.lineTo(x+size*.87,y+size*.5);
+    ctx.lineTo(x-size*.87,y+size*.5);ctx.closePath();ctx.stroke();
+  }
+  ctx.strokeStyle=col.secondary;ctx.lineWidth=.5;
+  for(let i=0;i<12;i++){
+    const angle=Math.random()*Math.PI*2;
+    const x=Math.random()*W,y=Math.random()*H;
+    const len=30+Math.random()*60;
+    ctx.beginPath();ctx.moveTo(x,y);
+    ctx.lineTo(x+len*Math.cos(angle),y+len*Math.sin(angle));ctx.stroke();
+  }
+  ctx.globalAlpha=.04;ctx.lineWidth=1.5;
+  for(let i=0;i<5;i++){
+    const y=80+i*(H-100)/5;
+    ctx.beginPath();ctx.moveTo(20,y);ctx.lineTo(W-20,y);ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawDataStream(ctx,W,H,col){
+  ctx.globalAlpha=.05;ctx.font='10px monospace';ctx.fillStyle=col.accent;
+  for(let i=0;i<15;i++){
+    const x=20+Math.random()*(W-40),y=80+Math.random()*(H-160);
+    const chars='0110101100010';
+    let str='';
+    for(let c=0;c<8+Math.floor(Math.random()*8);c++)str+=chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(str,x,y);
+  }
+  for(let i=0;i<10;i++){
+    const x=Math.random()*W,y=Math.random()*H,r=Math.random()*40+20;
+    const g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,col.accent+'0a');g.addColorStop(1,'transparent');
+    ctx.globalAlpha=1;ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);
+  }
+  ctx.globalAlpha=1;
+}
+
+// --- Individual Government Type Pattern Router ---
+
+function drawGovPattern(id,ctx,W,H,col){
+  const map={
+    hive_mind:drawNeuralPattern,
+    machine_intelligence:drawCircuitPattern,
+    devouring_swarm:drawOrganicPattern,
+    driven_assimilator:(c,w,h,cl)=>{drawCircuitPattern(c,w,h,cl);drawNeuralPattern(c,w,h,cl);},
+    driven_exterminator:(c,w,h,cl)=>{drawCircuitPattern(c,w,h,cl);drawWarGeometric(c,w,h,cl);},
+    empire:drawOrbitalPattern,
+    dictatorship:drawWarGeometric,
+    oligarchy:drawGeometricPattern,
+    enlightened_monarchy:drawSacredPattern,
+    feudal_empire:drawSacredPattern,
+    necrophage:drawOrganicPattern,
+    democracy:drawOrbitalPattern,
+    republic:drawGeometricPattern,
+    xenophobic_democracy:(c,w,h,cl)=>{drawGeometricPattern(c,w,h,cl);drawHexGridPattern(c,w,h,cl);},
+    federal_senate:drawOrbitalPattern,
+    techno_democracy:(c,w,h,cl)=>{drawCircuitPattern(c,w,h,cl);drawOrbitalPattern(c,w,h,cl);},
+    militarist_empire:drawWarGeometric,
+    war_council:drawWarGeometric,
+    ruthless_congress:drawWarGeometric,
+    star_empire:(c,w,h,cl)=>{drawStarfieldPattern(c,w,h,cl);drawWarGeometric(c,w,h,cl);},
+    pirate_raiders:drawWarGeometric,
+    marauder:drawWarGeometric,
+    military_industrial_complex:(c,w,h,cl)=>{drawCircuitPattern(c,w,h,cl);drawWarGeometric(c,w,h,cl);},
+    peaceful_republic:drawOrbitalPattern,
+    serene_monastery:drawSacredPattern,
+    inward_perfection:drawSacredPattern,
+    galactic_union:drawOrbitalPattern,
+    tree_hugger:drawOrganicPattern,
+    theocratic_republic:drawSacredPattern,
+    divine_empire:drawSacredPattern,
+    science_directorate:drawDataStream,
+    mechanist_empire:drawCircuitPattern,
+    megacorporation:drawHexGridPattern,
+    corporate_hedge_fund:drawHexGridPattern,
+    criminal_syndicate:(c,w,h,cl)=>{drawHexGridPattern(c,w,h,cl);drawGeometricPattern(c,w,h,cl);},
+    nomadic_traders:drawOrbitalPattern,
+    pyramid_scheme:drawGeometricPattern,
+    voidborn:(c,w,h,cl)=>{drawCircuitPattern(c,w,h,cl);drawOrbitalPattern(c,w,h,cl);},
+    awakened_empire:(c,w,h,cl)=>{drawStarfieldPattern(c,w,h,cl);drawSacredPattern(c,w,h,cl);},
+    purifiers:(c,w,h,cl)=>{drawWarGeometric(c,w,h,cl);drawOrganicPattern(c,w,h,cl);},
+    fallen_empire:(c,w,h,cl)=>{drawStarfieldPattern(c,w,h,cl);drawSacredPattern(c,w,h,cl);drawOrbitalPattern(c,w,h,cl);}
+  };
+  (map[id]||drawStarfieldPattern)(ctx,W,H,col);
+}
+
+// --- Decorative Corners ---
+
+function drawCorners(ctx,W,H,col){
+  const s=16,m=10;
+  ctx.globalAlpha=.6;ctx.strokeStyle=col.accent;ctx.lineWidth=1.5;
+  [[m,m,1,1],[W-m,m,-1,1],[m,H-m,1,-1],[W-m,H-m,-1,-1]].forEach(([x,y,dx,dy])=>{
+    ctx.beginPath();ctx.moveTo(x,y+dy*(-s));ctx.lineTo(x,y);ctx.lineTo(x+dx*s,y);ctx.stroke();
+  });
+  ctx.globalAlpha=.35;ctx.lineWidth=.8;
+  [[m+4,m+4,1,1],[W-m-4,m+4,-1,1],[m+4,H-m-4,1,-1],[W-m-4,H-m-4,-1,-1]].forEach(([x,y,dx,dy])=>{
+    const cs=8;
+    ctx.beginPath();ctx.moveTo(x,y+dy*(-cs));ctx.lineTo(x,y);ctx.lineTo(x+dx*cs,y);ctx.stroke();
+  });
+  ctx.globalAlpha=1;
+}
+
+// --- Main Card Generator ---
+
+function generateGovCard(govId,govName,govEn,govIcon){
+  const W=400,H=540;
+  const cv=document.createElement('canvas');
+  cv.width=W;cv.height=H;
+  const ctx=cv.getContext('2d');
+  const cat=getGovCategory(govId);
+  const col=getGovColors(cat);
+
+  // 1. Background gradient
+  const bg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*.7);
+  bg.addColorStop(0,col.bg3);bg.addColorStop(.5,col.bg2);bg.addColorStop(1,col.bg1);
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+  // 2. Category-specific background pattern
+  drawGovPattern(govId,ctx,W,H,col);
+
+  // 3. Scanline overlay
+  ctx.globalAlpha=.025;
+  for(let y=0;y<H;y+=3){
+    ctx.fillStyle='#ffffff';ctx.fillRect(0,y,W,1);
+  }
+  ctx.globalAlpha=1;
+
+  // 4. Vignette
+  const vig=ctx.createRadialGradient(W/2,H/2,W*.25,W/2,H/2,W*.8);
+  vig.addColorStop(0,'transparent');vig.addColorStop(1,'rgba(0,0,0,.5)');
+  ctx.fillStyle=vig;ctx.fillRect(0,0,W,H);
+
+  // 5. Central glow aura
+  const auraR=140;
+  const aura=ctx.createRadialGradient(W/2,190,10,W/2,190,auraR);
+  aura.addColorStop(0,col.primary+'18');aura.addColorStop(.4,col.primary+'0a');aura.addColorStop(1,'transparent');
+  ctx.fillStyle=aura;ctx.beginPath();ctx.arc(W/2,190,auraR,0,Math.PI*2);ctx.fill();
+
+  // 6. Decorative horizontal lines
+  ctx.globalAlpha=.12;
+  const lineGrad=ctx.createLinearGradient(60,0,W-60,0);
+  lineGrad.addColorStop(0,'transparent');lineGrad.addColorStop(.3,col.accent);lineGrad.addColorStop(.7,col.accent);lineGrad.addColorStop(1,'transparent');
+  ctx.strokeStyle=lineGrad;ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(60,130);ctx.lineTo(W-60,130);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(80,340);ctx.lineTo(W-80,340);ctx.stroke();
+  ctx.globalAlpha=1;
+
+  // 7. Decorative corner brackets
+  drawCorners(ctx,W,H,col);
+
+  // 8. Top label
+  ctx.globalAlpha=.35;
+  ctx.font='600 10px sans-serif';
+  ctx.fillStyle=col.accent;ctx.textAlign='center';
+  ctx.fillText('SGTI GOVERNMENT TYPE INDICATOR',W/2,45);
+  ctx.globalAlpha=1;
+
+  // 9. Government icon emoji
+  ctx.font='72px serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(govIcon,W/2,195);
+
+  // 10. Glow ring around icon
+  ctx.globalAlpha=.15;
+  ctx.strokeStyle=col.primary;ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(W/2,195,80,0,Math.PI*2);ctx.stroke();
+  ctx.globalAlpha=.08;ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(W/2,195,95,0,Math.PI*2);ctx.stroke();
+  ctx.globalAlpha=1;
+
+  // 11. Chinese government name
+  ctx.textBaseline='alphabetic';
+  ctx.font='900 34px "Noto Sans SC",sans-serif';
+  ctx.fillStyle='#f5e6b8';ctx.textAlign='center';
+  ctx.shadowColor='rgba(245,200,66,.25)';ctx.shadowBlur=10;
+  ctx.fillText(govName,W/2,310);
+  ctx.shadowBlur=0;
+
+  // 12. English subtitle
+  ctx.font='600 14px sans-serif';
+  ctx.fillStyle='#5a7a9a';ctx.letterSpacing='3px';
+  ctx.fillText(govEn.toUpperCase(),W/2,338);
+
+  // 13. Category badge
+  const catNames={
+    gestalt:'GESTALT',authoritarian:'AUTHORITARIAN',democratic:'DEMOCRATIC',
+    militarist:'MILITARIST',pacifist:'PACIFIST',spiritualist:'SPIRITUALIST',
+    materialist:'MATERIALIST',corporate:'CORPORATE',special:'SPECIAL'
+  };
+  const badgeText=catNames[cat]||cat.toUpperCase();
+  ctx.font='600 10px sans-serif';
+  const tw=ctx.measureText(badgeText).width;
+  const bx=W/2-tw/2-14,by=370,bw=tw+28,bh=20;
+
+  ctx.globalAlpha=.15;
+  ctx.fillStyle=col.accent;
+  roundRect(ctx,bx,by,bw,bh,3);ctx.fill();
+  ctx.globalAlpha=.4;ctx.strokeStyle=col.accent;ctx.lineWidth=.8;
+  roundRect(ctx,bx,by,bw,bh,3);ctx.stroke();
+  ctx.globalAlpha=.65;ctx.fillStyle=col.accent;ctx.textAlign='center';
+  ctx.fillText(badgeText,W/2,384);
+  ctx.globalAlpha=1;
+
+  // 14. Thin bottom accent line
+  const bLine=ctx.createLinearGradient(80,0,W-80,0);
+  bLine.addColorStop(0,'transparent');bLine.addColorStop(.5,col.primary);bLine.addColorStop(1,'transparent');
+  ctx.globalAlpha=.25;ctx.strokeStyle=bLine;ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(80,H-50);ctx.lineTo(W-80,H-50);ctx.stroke();
+  ctx.globalAlpha=1;
+
+  // 15. Bottom text
+  ctx.font='400 11px sans-serif';
+  ctx.fillStyle='#3a5a7a';ctx.textAlign='center';
+  ctx.fillText('Stellaris Government Type Indicator',W/2,H-28);
+
+  // 16. Outer frame border
+  ctx.globalAlpha=.2;ctx.strokeStyle=col.accent;ctx.lineWidth=1;
+  roundRect(ctx,4,4,W-8,H-8,6);ctx.stroke();
+  ctx.globalAlpha=.08;ctx.lineWidth=1;
+  roundRect(ctx,10,10,W-20,H-20,4);ctx.stroke();
+  ctx.globalAlpha=1;
+
+  return cv;
 }
 
 function goHome(){document.getElementById('page-result').classList.add('hidden');document.getElementById('page-start').classList.remove('hidden');checkResume();}
